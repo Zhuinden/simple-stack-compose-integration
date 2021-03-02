@@ -20,3 +20,5 @@ projectFilesBackup
 /services/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
 /services-ktx/build/
 /services-ktx/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
+/core/build
+/services/build
