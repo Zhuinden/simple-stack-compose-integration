@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             .install(this, androidContentFrame, History.of(FirstKey()))
 
         setContent {
-            BackstackProvider(backstack) {
+            BackstackProvider(backstack) { // <--
                 MaterialTheme {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         composeStateChanger.RenderScreen() // <--
