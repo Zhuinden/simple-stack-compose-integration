@@ -1,0 +1,22 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.idea
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+projectFilesBackup
+
+# Project exclude paths
+/fragments-ktx/build/
+/fragments-ktx/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
+/navigator-ktx/build/
+/navigator-ktx/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
+/services/build/
+/services/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
+/services-ktx/build/
+/services-ktx/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/

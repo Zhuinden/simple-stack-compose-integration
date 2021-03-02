@@ -1,0 +1,2 @@
+com/zhuinden/simplestackcomposeintegration/core/BuildConfig.java
+ com.zhuinden.simplestackcomposeintegration.core.BuildConfig

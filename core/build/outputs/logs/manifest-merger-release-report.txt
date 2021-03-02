@@ -1,0 +1,37 @@
+-- Merging decision tree log ---
+manifest
+ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+	package
+		ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:18:5-62
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+	android:versionCode
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml:17:1-19:7
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+uses-sdk
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		ADDED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
+		INJECTED from F:\Work\HomeProjects\simple-stack-extensions\navigator-ktx\src\main\AndroidManifest.xml
