@@ -16,7 +16,10 @@
 package com.zhuinden.simplestackcomposeintegration.core
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -155,7 +158,7 @@ class AnimatingComposeStateChanger(
 
             var isAnimating by remember { mutableStateOf(true) }
 
-            val lerping = remember { Animatable(0.0f, Float.VectorConverter, 1.0f) }
+            val lerping = remember { Animatable(0.0f) }
 
             var animationProgress by remember { mutableStateOf(0.0f) }
 
@@ -210,7 +213,9 @@ class AnimatingComposeStateChanger(
             Layout(
                     content = {
                         if (fullWidth > 0 && fullHeight > 0) {
-                            topNewKey.RenderComposable(modifier)
+                            key(topNewKey) {
+                                topNewKey.RenderComposable(modifier)
+                            }
                         }
                     },
                     measurePolicy = measurePolicy,
@@ -229,7 +234,9 @@ class AnimatingComposeStateChanger(
             Layout(
                     content = {
                         if (isAnimating) {
-                            topPreviousKey.RenderComposable(modifier)
+                            key(topPreviousKey) {
+                                topPreviousKey.RenderComposable(modifier)
+                            }
                         }
                     },
                     measurePolicy = measurePolicy,
