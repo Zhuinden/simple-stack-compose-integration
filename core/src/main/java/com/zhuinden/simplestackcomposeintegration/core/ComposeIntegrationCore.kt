@@ -28,7 +28,6 @@ import androidx.compose.ui.util.fastMaxBy
 import com.zhuinden.simplestack.*
 import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.NewComposableTransition
 import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.PreviousComposableTransition
-import kotlinx.coroutines.launch
 
 /**
  * Composition local to access the key within screens.
@@ -79,7 +78,7 @@ class AnimatingComposeStateChanger(
      * Configuration for the screen switching animations.
      */
     class AnimationConfiguration(
-            val animationSpec: FiniteAnimationSpec<Float> = TweenSpec(325, 0, LinearEasing),
+            val animationSpec: FiniteAnimationSpec<Float> = TweenSpec(250, 0, LinearEasing),
             val customComposableTransitions: CustomComposableTransitions = CustomComposableTransitions()
     ) {
         /**
@@ -172,8 +171,6 @@ class AnimatingComposeStateChanger(
 
             var isAnimating by remember { mutableStateOf(true) } // true renders previous initially for fullWidth
 
-            val scope = rememberCoroutineScope()
-
             val lerping = Animatable(0.0f, Float.VectorConverter, 1.0f) // DO NOT REMEMBER!
 
             var animationProgress by remember { mutableStateOf(0.0f) }
@@ -243,20 +240,14 @@ class AnimatingComposeStateChanger(
                     }
             )
 
-            DisposableEffect(key1 = completionCallback, effect = {
-                scope.launch {
-                    isAnimating = true
-                    animationProgress = 0.0f
-                    lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
-                        animationProgress = this.value
-                    }
-                    isAnimating = false
-                    completionCallback.stateChangeComplete()
+            LaunchedEffect(key1 = completionCallback, block = {
+                animationProgress = 0.0f
+                isAnimating = true
+                lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
+                    animationProgress = this.value
                 }
-
-                onDispose {
-                    // do nothing
-                }
+                isAnimating = false
+                completionCallback.stateChangeComplete()
             })
         }
     }
