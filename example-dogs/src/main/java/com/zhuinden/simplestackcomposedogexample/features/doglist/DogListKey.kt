@@ -15,7 +15,7 @@ import kotlinx.parcelize.Parcelize
 
 @Immutable
 @Parcelize
-class DogListKey : ComposeKey() {
+data class DogListKey(private val noArgPlaceholder: String = "") : ComposeKey() {
     @Suppress("RemoveExplicitTypeArguments")
     override fun bindServices(serviceBinder: ServiceBinder) {
         super.bindServices(serviceBinder)
