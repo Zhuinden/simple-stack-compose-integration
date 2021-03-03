@@ -6,7 +6,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "com.zhuinden.firstcomposeapp"
+        applicationId "com.zhuinden.simplestackcomposesimpleexample"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1

@@ -1,4 +1,4 @@
-package com.zhuinden.simplestackcomposedogexample
+package com.zhuinden.simplestackcomposesimpleexample
 
 import android.os.Bundle
 import androidx.activity.compose.setContent

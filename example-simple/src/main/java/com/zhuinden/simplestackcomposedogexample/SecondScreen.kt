@@ -1,4 +1,4 @@
-package com.zhuinden.simplestackcomposedogexample
+package com.zhuinden.simplestackcomposesimpleexample
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
