@@ -153,8 +153,8 @@ class AnimatingComposeStateChanger(
 
             var completionCallback by remember { mutableStateOf<StateChanger.Callback?>(null) }
 
-            val topNewKey = stateChange.topNewKey<DefaultComposeKey>()
-            val topPreviousKey = stateChange.topPreviousKey<DefaultComposeKey>()
+            val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
+            val topPreviousKey by rememberUpdatedState(newValue = stateChange.topPreviousKey<DefaultComposeKey>())
 
             var isAnimating by remember { mutableStateOf(true) }
 
@@ -222,11 +222,11 @@ class AnimatingComposeStateChanger(
                     modifier = when {
                         !isAnimating -> modifier
                         else -> animationConfiguration.customComposableTransitions.newComposableTransition.animateNewComposable(
-                                modifier,
-                                stateChange,
-                                fullWidth,
-                                fullHeight,
-                                animationProgress,
+                            modifier,
+                            stateChange,
+                            fullWidth,
+                            fullHeight,
+                            animationProgress,
                         )
                     }
             )
@@ -235,7 +235,7 @@ class AnimatingComposeStateChanger(
                     content = {
                         if (isAnimating) {
                             key(topPreviousKey) {
-                                topPreviousKey.RenderComposable(modifier)
+                                topPreviousKey?.RenderComposable(modifier)
                             }
                         }
                     },
@@ -243,11 +243,11 @@ class AnimatingComposeStateChanger(
                     modifier = when {
                         !isAnimating -> modifier
                         else -> animationConfiguration.customComposableTransitions.previousComposableTransition.animatePreviousComposable(
-                                modifier,
-                                stateChange,
-                                fullWidth,
-                                fullHeight,
-                                animationProgress,
+                            modifier,
+                            stateChange,
+                            fullWidth,
+                            fullHeight,
+                            animationProgress,
                         )
                     }
             )
