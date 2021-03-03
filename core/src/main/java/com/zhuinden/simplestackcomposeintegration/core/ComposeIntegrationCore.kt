@@ -148,10 +148,25 @@ class AnimatingComposeStateChanger(
             val stateChange = stateChange ?: return
             val callback = callback ?: return
 
-            val completionCallback by rememberUpdatedState(newValue = callback)
+            var completionCallback by remember { mutableStateOf<StateChanger.Callback?>(null) }
 
             val topNewKey = stateChange.topNewKey<DefaultComposeKey>()
             val topPreviousKey = stateChange.topPreviousKey<DefaultComposeKey>()
+
+            var isAnimating by remember { mutableStateOf(true) }
+
+            val lerping = remember { Animatable(0.0f, Float.VectorConverter, 1.0f) }
+
+            var animationProgress by remember { mutableStateOf(0.0f) }
+
+            if (completionCallback !== callback) {
+                completionCallback = callback
+
+                if (topPreviousKey != null) {
+                    animationProgress = 0.0f
+                    isAnimating = true
+                }
+            }
 
             if (topPreviousKey == null) {
                 key(topNewKey) {
@@ -159,7 +174,7 @@ class AnimatingComposeStateChanger(
                 }
 
                 DisposableEffect(key1 = completionCallback, effect = {
-                    completionCallback.stateChangeComplete()
+                    completionCallback!!.stateChangeComplete()
 
                     onDispose {
                         // do nothing
@@ -169,12 +184,6 @@ class AnimatingComposeStateChanger(
                 return
             }
 
-            var isAnimating by remember { mutableStateOf(true) } // true renders previous initially for fullWidth
-
-            val lerping = Animatable(0.0f, Float.VectorConverter, 1.0f) // DO NOT REMEMBER!
-
-            var animationProgress by remember { mutableStateOf(0.0f) }
-
             var fullWidth by remember { mutableStateOf(0) }
             var fullHeight by remember { mutableStateOf(0) }
 
@@ -183,11 +192,11 @@ class AnimatingComposeStateChanger(
                 val maxWidth = placeables.fastMaxBy { it.width }?.width ?: 0
                 val maxHeight = placeables.fastMaxBy { it.height }?.height ?: 0
 
-                if (fullWidth == 0) {
+                if (fullWidth == 0 && maxWidth != 0) {
                     fullWidth = maxWidth
                 }
 
-                if (fullHeight == 0) {
+                if (fullHeight == 0 && maxHeight != 0) {
                     fullHeight = maxHeight
                 }
 
@@ -201,9 +210,7 @@ class AnimatingComposeStateChanger(
             Layout(
                     content = {
                         if (fullWidth > 0 && fullHeight > 0) {
-                            key(topNewKey) {
-                                topNewKey.RenderComposable(modifier)
-                            }
+                            topNewKey.RenderComposable(modifier)
                         }
                     },
                     measurePolicy = measurePolicy,
@@ -222,9 +229,7 @@ class AnimatingComposeStateChanger(
             Layout(
                     content = {
                         if (isAnimating) {
-                            key(topPreviousKey) {
-                                topPreviousKey.RenderComposable(modifier)
-                            }
+                            topPreviousKey.RenderComposable(modifier)
                         }
                     },
                     measurePolicy = measurePolicy,
@@ -241,13 +246,12 @@ class AnimatingComposeStateChanger(
             )
 
             LaunchedEffect(key1 = completionCallback, block = {
-                animationProgress = 0.0f
-                isAnimating = true
                 lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
                     animationProgress = this.value
                 }
                 isAnimating = false
-                completionCallback.stateChangeComplete()
+                lerping.snapTo(0f)
+                completionCallback!!.stateChangeComplete()
             })
         }
     }
