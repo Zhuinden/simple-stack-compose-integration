@@ -1,3 +1,4 @@
-include ":example"
+include ":example-simple"
+include ":example-dogs"
 include ":core"
 include ":services"

@@ -25,11 +25,9 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
-import com.zhuinden.simplestack.Backstack
-import com.zhuinden.simplestack.StateChange
-import com.zhuinden.simplestack.StateChanger
-import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.NewComposableTransition
-import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.PreviousComposableTransition
+import com.zhuinden.simplestack.*
+import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.NewComposableTransition
+import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.PreviousComposableTransition
 import kotlinx.coroutines.launch
 
 /**
@@ -58,28 +56,23 @@ abstract class DefaultComposeKey {
 }
 
 /**
- * A state changer that allows switching between composables.
+ * A state changer that allows switching between composables, animating the transition.
  */
-class ComposeStateChanger(
+class AnimatingComposeStateChanger(
         private val animationConfiguration: AnimationConfiguration = AnimationConfiguration()
-) : StateChanger {
+) : AsyncStateChanger.NavigationHandler {
     private var backstackState by mutableStateOf(BackstackState(animationConfiguration = animationConfiguration))
 
-    override fun handleStateChange(
-            stateChange: StateChange,
-            completionCallback: StateChanger.Callback
+    override fun onNavigationEvent(
+        stateChange: StateChange,
+        completionCallback: StateChanger.Callback
     ) {
-        if (stateChange.isTopNewKeyEqualToPrevious) { // simpler consumer API if I don't use AsyncStateChanger here
-            completionCallback.stateChangeComplete()
-            return
-        }
-
         this.backstackState =
-                BackstackState(
-                        animationConfiguration = animationConfiguration,
-                        stateChange = stateChange,
-                        callback = completionCallback,
-                )
+            BackstackState(
+                animationConfiguration = animationConfiguration,
+                stateChange = stateChange,
+                callback = completionCallback,
+            )
     }
 
     /**
@@ -95,7 +88,7 @@ class ComposeStateChanger(
         class CustomComposableTransitions(
                 val previousComposableTransition: PreviousComposableTransition =
                         @Suppress("RedundantSamConstructor")
-                        PreviousComposableTransition { modifier, stateChange, fullWidth, animationProgress ->
+                        PreviousComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
                             modifier.then(
                                     when (stateChange.direction) {
                                         StateChange.FORWARD -> Modifier.graphicsLayer(translationX = 0 + (-1) * fullWidth * animationProgress)
@@ -106,7 +99,7 @@ class ComposeStateChanger(
                         },
                 val newComposableTransition: NewComposableTransition =
                         @Suppress("RedundantSamConstructor")
-                        NewComposableTransition { modifier, stateChange, fullWidth, animationProgress ->
+                        NewComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
                             modifier.then(
                                     when (stateChange.direction) {
                                         StateChange.FORWARD -> Modifier.graphicsLayer(translationX = fullWidth + (-1) * fullWidth * animationProgress)
@@ -125,6 +118,7 @@ class ComposeStateChanger(
                         modifier: Modifier,
                         stateChange: StateChange,
                         fullWidth: Int,
+                        fullHeight: Int,
                         animationProgress: Float
                 ): Modifier
             }
@@ -138,6 +132,7 @@ class ComposeStateChanger(
                         modifier: Modifier,
                         stateChange: StateChange,
                         fullWidth: Int,
+                        fullHeight: Int,
                         animationProgress: Float
                 ): Modifier
             }
@@ -184,6 +179,7 @@ class ComposeStateChanger(
             var animationProgress by remember { mutableStateOf(0.0f) }
 
             var fullWidth by remember { mutableStateOf(0) }
+            var fullHeight by remember { mutableStateOf(0) }
 
             val measurePolicy = MeasurePolicy { measurables, constraints ->
                 val placeables = measurables.fastMap { it.measure(constraints) }
@@ -192,6 +188,10 @@ class ComposeStateChanger(
 
                 if (fullWidth == 0) {
                     fullWidth = maxWidth
+                }
+
+                if (fullHeight == 0) {
+                    fullHeight = maxHeight
                 }
 
                 layout(maxWidth, maxHeight) {
@@ -203,7 +203,7 @@ class ComposeStateChanger(
 
             Layout(
                     content = {
-                        if (fullWidth > 0) {
+                        if (fullWidth > 0 && fullHeight > 0) {
                             key(topNewKey) {
                                 topNewKey.RenderComposable(modifier)
                             }
@@ -216,6 +216,7 @@ class ComposeStateChanger(
                                 modifier,
                                 stateChange,
                                 fullWidth,
+                                fullHeight,
                                 animationProgress,
                         )
                     }
@@ -236,6 +237,7 @@ class ComposeStateChanger(
                                 modifier,
                                 stateChange,
                                 fullWidth,
+                                fullHeight,
                                 animationProgress,
                         )
                     }
@@ -266,6 +268,40 @@ class ComposeStateChanger(
         backstackState.RenderScreen(modifier)
     }
 }
+
+/**
+ * A state changer that allows switching between composables, animating the transition.
+ */
+class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
+    private var backstackState by mutableStateOf(BackstackState())
+
+    private data class BackstackState(
+        private val stateChange: StateChange? = null,
+    ) {
+        @Composable
+        fun RenderScreen(modifier: Modifier = Modifier) {
+            val stateChange = stateChange ?: return
+
+            val topNewKey = stateChange.topNewKey<DefaultComposeKey>()
+
+            key(topNewKey) {
+                topNewKey.RenderComposable(modifier)
+            }
+        }
+    }
+
+    @Composable
+    fun RenderScreen(modifier: Modifier = Modifier) {
+        LocalBackstack.current // force `BackstackProvider` to be set
+
+        backstackState.RenderScreen(modifier)
+    }
+
+    override fun onNavigationEvent(stateChange: StateChange) {
+        backstackState = BackstackState(stateChange)
+    }
+}
+
 
 /**
  * Composition local to access the Backstack within screens.
