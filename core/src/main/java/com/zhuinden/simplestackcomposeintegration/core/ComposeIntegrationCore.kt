@@ -156,11 +156,13 @@ class AnimatingComposeStateChanger(
             val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
             val topPreviousKey by rememberUpdatedState(newValue = stateChange.topPreviousKey<DefaultComposeKey>())
 
-            var isAnimating by remember { mutableStateOf(true) }
+            var isAnimating by remember { mutableStateOf(false) }
 
             val lerping = remember { Animatable(0.0f) }
 
             var animationProgress by remember { mutableStateOf(0.0f) }
+
+            var currentKey by remember { mutableStateOf<DefaultComposeKey?>(null) }
 
             if (completionCallback !== callback) {
                 completionCallback = callback
@@ -168,23 +170,9 @@ class AnimatingComposeStateChanger(
                 if (topPreviousKey != null) {
                     animationProgress = 0.0f
                     isAnimating = true
+                } else {
+                    currentKey = topNewKey // initialize
                 }
-            }
-
-            if (topPreviousKey == null) {
-                key(topNewKey) {
-                    topNewKey.RenderComposable(modifier)
-                }
-
-                DisposableEffect(key1 = completionCallback, effect = {
-                    completionCallback!!.stateChangeComplete()
-
-                    onDispose {
-                        // do nothing
-                    }
-                })
-
-                return
             }
 
             var fullWidth by remember { mutableStateOf(0) }
@@ -253,11 +241,13 @@ class AnimatingComposeStateChanger(
             )
 
             LaunchedEffect(key1 = completionCallback, block = {
-                lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
-                    animationProgress = this.value
+                if (topPreviousKey != null) {
+                    lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
+                        animationProgress = this.value
+                    }
+                    isAnimating = false
+                    lerping.snapTo(0f)
                 }
-                isAnimating = false
-                lerping.snapTo(0f)
                 completionCallback!!.stateChangeComplete()
             })
         }
