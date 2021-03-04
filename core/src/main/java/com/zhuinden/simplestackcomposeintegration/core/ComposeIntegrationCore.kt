@@ -184,19 +184,15 @@ class AnimatingComposeStateChanger(
                 }
             }
 
-            val keySlot1 by rememberUpdatedState(
-                when {
-                    initialization -> topNewKey
-                    else -> topPreviousKey
-                }
-            )
+            val keySlot1 by rememberUpdatedState(when {
+                initialization -> topNewKey
+                else -> topPreviousKey
+            })
 
-            val keySlot2 by rememberUpdatedState(
-                when {
-                    initialization -> topPreviousKey
-                    else -> topNewKey
-                }
-            )
+            val keySlot2 by rememberUpdatedState(when {
+                initialization -> topPreviousKey
+                else -> topNewKey
+            })
 
             Layout(
                 content = {
