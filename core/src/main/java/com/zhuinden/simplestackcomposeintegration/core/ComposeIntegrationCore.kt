@@ -20,6 +20,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -29,14 +30,13 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import com.zhuinden.simplestack.*
-import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.NewComposableTransition
-import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.PreviousComposableTransition
+import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.ComposableTransition
 
 /**
  * Composition local to access the key within screens.
  */
 val LocalComposeKey =
-        staticCompositionLocalOf<DefaultComposeKey> { throw IllegalStateException("Key does not exist in this composable scope") }
+    staticCompositionLocalOf<DefaultComposeKey> { throw IllegalStateException("Key does not exist in this composable scope") }
 
 /**
  * A key that receives a modifier and provides for the compose key composition local.
@@ -61,8 +61,8 @@ abstract class DefaultComposeKey {
  * A state changer that allows switching between composables, animating the transition.
  */
 class AnimatingComposeStateChanger(
-        private val animationConfiguration: AnimationConfiguration = AnimationConfiguration()
-) : AsyncStateChanger.NavigationHandler {
+    private val animationConfiguration: AnimationConfiguration = AnimationConfiguration()
+): AsyncStateChanger.NavigationHandler {
     private var backstackState by mutableStateOf(BackstackState(animationConfiguration = animationConfiguration))
 
     override fun onNavigationEvent(
@@ -81,70 +81,54 @@ class AnimatingComposeStateChanger(
      * Configuration for the screen switching animations.
      */
     class AnimationConfiguration(
-            val animationSpec: FiniteAnimationSpec<Float> = TweenSpec(250, 0, LinearEasing),
-            val customComposableTransitions: CustomComposableTransitions = CustomComposableTransitions()
+        val animationSpec: FiniteAnimationSpec<Float> = TweenSpec(250, 0, LinearEasing),
+        val customComposableTransitions: CustomComposableTransitions = CustomComposableTransitions()
     ) {
         /**
          * Allows customizing the screen switching animations.
          */
         class CustomComposableTransitions(
-                val previousComposableTransition: PreviousComposableTransition =
-                        @Suppress("RedundantSamConstructor")
-                        PreviousComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
-                            modifier.then(
-                                    when (stateChange.direction) {
-                                        StateChange.FORWARD -> Modifier.graphicsLayer(translationX = 0 + (-1) * fullWidth * animationProgress)
-                                        StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = 0 + fullWidth * animationProgress)
-                                        else /* REPLACE */ -> Modifier.graphicsLayer(alpha = (1 - animationProgress))
-                                    }
-                            )
-                        },
-                val newComposableTransition: NewComposableTransition =
-                        @Suppress("RedundantSamConstructor")
-                        NewComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
-                            modifier.then(
-                                    when (stateChange.direction) {
-                                        StateChange.FORWARD -> Modifier.graphicsLayer(translationX = fullWidth + (-1) * fullWidth * animationProgress)
-                                        StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = -1 * fullWidth + fullWidth * animationProgress)
-                                        else /* REPLACE */ -> Modifier.graphicsLayer(alpha = 0 + animationProgress)
-                                    }
-                            )
-                        },
+            /**
+             * The previous transition.
+             */
+            val previousComposableTransition: ComposableTransition =
+                ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
+                    modifier.then(
+                        when (stateChange.direction) {
+                            StateChange.FORWARD -> Modifier.graphicsLayer(translationX = 0 + (-1) * fullWidth * animationProgress)
+                            StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = 0 + fullWidth * animationProgress)
+                            else /* REPLACE */ -> Modifier.graphicsLayer(alpha = (1 - animationProgress))
+                        }
+                    )
+                },
+            /**
+             * The new transition.
+             */
+            val newComposableTransition: ComposableTransition =
+                ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
+                    modifier.then(
+                        when (stateChange.direction) {
+                            StateChange.FORWARD -> Modifier.graphicsLayer(translationX = fullWidth + (-1) * fullWidth * animationProgress)
+                            StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = -1 * fullWidth + fullWidth * animationProgress)
+                            else /* REPLACE */ -> Modifier.graphicsLayer(alpha = 0 + animationProgress)
+                        }
+                    )
+                },
         ) {
             /**
-             * Transition configuration for the previous composable.
+             * An interface to describe transition of a composables.
              */
-            fun interface PreviousComposableTransition {
+            fun interface ComposableTransition {
                 @SuppressLint("ModifierFactoryExtensionFunction")
-                fun animateComposable(
-                        modifier: Modifier,
-                        stateChange: StateChange,
-                        fullWidth: Int,
-                        fullHeight: Int,
-                        animationProgress: Float
-                ): Modifier
-            }
-
-            /**
-             * Transition configuration for the new composable.
-             */
-            fun interface NewComposableTransition {
-                @SuppressLint("ModifierFactoryExtensionFunction")
-                fun animateComposable(
-                        modifier: Modifier,
-                        stateChange: StateChange,
-                        fullWidth: Int,
-                        fullHeight: Int,
-                        animationProgress: Float
-                ): Modifier
+                fun animateComposable(modifier: Modifier, stateChange: StateChange, fullWidth: Int, fullHeight: Int, animationProgress: Float): Modifier
             }
         }
     }
 
     private data class BackstackState(
-            private val animationConfiguration: AnimationConfiguration,
-            private val stateChange: StateChange? = null,
-            private val callback: StateChanger.Callback? = null,
+        private val animationConfiguration: AnimationConfiguration,
+        private val stateChange: StateChange? = null,
+        private val callback: StateChanger.Callback? = null,
     ) {
         @Composable
         fun RenderScreen(modifier: Modifier = Modifier) {
@@ -200,52 +184,49 @@ class AnimatingComposeStateChanger(
                 }
             }
 
-            val keySlot1 by rememberUpdatedState(when {
-                initialization -> topNewKey
-                else -> topPreviousKey
-            })
+            val keySlot1 by rememberUpdatedState(
+                when {
+                    initialization -> topNewKey
+                    else -> topPreviousKey
+                }
+            )
 
-            val keySlot2 by rememberUpdatedState(when {
-                initialization -> topPreviousKey
-                else -> topNewKey
-            })
-
-            Layout(
-                    content = {
-                        if (initialization || isAnimating) {
-                            keySlot1?.RenderComposable(modifier)
-                        }
-                    },
-                    measurePolicy = measurePolicy,
-                    modifier = when {
-                        !isAnimating || initialization -> modifier
-                        else -> animationConfiguration.customComposableTransitions.previousComposableTransition.animateComposable(
-                            modifier,
-                            stateChange,
-                            fullWidth,
-                            fullHeight,
-                            animationProgress,
-                        )
-                    }
+            val keySlot2 by rememberUpdatedState(
+                when {
+                    initialization -> topPreviousKey
+                    else -> topNewKey
+                }
             )
 
             Layout(
-                    content = {
-                        if (!initialization || isAnimating) {
-                            keySlot2?.RenderComposable(modifier)
+                content = {
+                    key(keySlot1) {
+                        if (initialization || isAnimating) {
+                            Box(
+                                modifier = when {
+                                    !isAnimating || initialization -> modifier
+                                    else -> animationConfiguration.customComposableTransitions.previousComposableTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                }
+                            ) {
+                                keySlot1?.RenderComposable(modifier)
+                            }
                         }
-                    },
-                    measurePolicy = measurePolicy,
-                    modifier = when {
-                        !isAnimating || initialization -> modifier
-                        else -> animationConfiguration.customComposableTransitions.newComposableTransition.animateComposable(
-                            modifier,
-                            stateChange,
-                            fullWidth,
-                            fullHeight,
-                            animationProgress,
-                        )
                     }
+
+                    key(keySlot2) {
+                        if (!initialization || isAnimating) {
+                            Box(
+                                modifier = when {
+                                    !isAnimating || initialization -> modifier
+                                    else -> animationConfiguration.customComposableTransitions.newComposableTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                }
+                            ) {
+                                keySlot2?.RenderComposable(modifier)
+                            }
+                        }
+                    }
+                },
+                measurePolicy = measurePolicy,
             )
 
             LaunchedEffect(key1 = completionCallback, block = {
@@ -307,7 +288,7 @@ class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
  * Composition local to access the Backstack within screens.
  */
 val LocalBackstack =
-        staticCompositionLocalOf<Backstack> { throw IllegalStateException("You must ensure that the BackstackProvider provides the backstack, but it currently doesn't exist.") }
+    staticCompositionLocalOf<Backstack> { throw IllegalStateException("You must ensure that the BackstackProvider provides the backstack, but it currently doesn't exist.") }
 
 /**
  * Provider for the backstack composition local.
