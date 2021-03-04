@@ -186,43 +186,42 @@ class AnimatingComposeStateChanger(
                 }
             }
 
-            val keySlot1 by rememberUpdatedState(when {
-                initialization -> topNewKey
-                else -> topPreviousKey
-            })
-
-            val keySlot2 by rememberUpdatedState(when {
-                initialization -> topPreviousKey
-                else -> topNewKey
-            })
-
             val previousTransition = animationConfiguration.customComposableTransitions.previousComposableTransition
             val newTransition = animationConfiguration.customComposableTransitions.newComposableTransition
 
+            var initialNewKey by remember { mutableStateOf(topNewKey) }
+
+            val newKeys by rememberUpdatedState(newValue = stateChange.getNewKeys<DefaultComposeKey>())
+            val previousKeys by rememberUpdatedState(newValue = stateChange.getPreviousKeys<DefaultComposeKey>())
+
+            val allKeys by rememberUpdatedState(newValue = mutableListOf<DefaultComposeKey>().apply {
+                addAll(newKeys)
+
+                previousKeys.fastForEach { previousKey ->
+                    if (!newKeys.contains(previousKey)) {
+                        add(0, previousKey)
+                    }
+                }
+            }.toList())
+
             Layout(
                 content = {
-                    if (initialization || isAnimating) {
-                        Box(
-                            modifier = when {
-                                !isAnimating || initialization -> modifier
-                                else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
-                            }
-                        ) {
-                            key(keySlot1) {
-                                keySlot1?.RenderComposable(modifier)
-                            }
-                        }
-                    }
-
-                    if (!initialization || isAnimating) {
-                        Box(
-                            modifier = when {
-                                !isAnimating || initialization -> modifier
-                                else -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
-                            }
-                        ) {
-                            key(keySlot2) {
-                                keySlot2?.RenderComposable(modifier)
+                    allKeys.fastForEach { key ->
+                        if (key == topNewKey || (isAnimating && key == initialNewKey)) {
+                            key(key) {
+                                Box(
+                                    modifier = when {
+                                        !isAnimating || initialization -> modifier
+                                        else -> when {
+                                            key == topNewKey -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                            else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                        }
+                                    }
+                                ) {
+                                    //Log.i("Rendering...",
+                                    //    "Key is initial new key? ${key == initialNewKey} -- key is top? ${key == topNewKey} -- item is ${key.javaClass.simpleName}, anim progress ${animationProgress}, is animating ${isAnimating}, init ${initialization}")
+                                    key.RenderComposable(modifier)
+                                }
                             }
                         }
                     }
@@ -231,13 +230,14 @@ class AnimatingComposeStateChanger(
             )
 
             LaunchedEffect(key1 = completionCallback, block = {
-                if (topPreviousKey != null) {
+                if (isAnimating) {
                     lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
                         animationProgress = this.value
                     }
                     isAnimating = false
                     lerping.snapTo(0f)
                 }
+                initialNewKey = topNewKey
                 completionCallback!!.stateChangeComplete()
             })
         }
