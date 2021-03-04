@@ -116,7 +116,7 @@ class AnimatingComposeStateChanger(
              */
             fun interface PreviousComposableTransition {
                 @SuppressLint("ModifierFactoryExtensionFunction")
-                fun animatePreviousComposable(
+                fun animateComposable(
                         modifier: Modifier,
                         stateChange: StateChange,
                         fullWidth: Int,
@@ -130,7 +130,7 @@ class AnimatingComposeStateChanger(
              */
             fun interface NewComposableTransition {
                 @SuppressLint("ModifierFactoryExtensionFunction")
-                fun animateNewComposable(
+                fun animateComposable(
                         modifier: Modifier,
                         stateChange: StateChange,
                         fullWidth: Int,
@@ -162,16 +162,18 @@ class AnimatingComposeStateChanger(
 
             var animationProgress by remember { mutableStateOf(0.0f) }
 
-            var currentKey by remember { mutableStateOf<DefaultComposeKey?>(null) }
+            var initialization by remember { mutableStateOf(true) }
 
             if (completionCallback !== callback) {
                 completionCallback = callback
 
                 if (topPreviousKey != null) {
+                    initialization = false
+
                     animationProgress = 0.0f
                     isAnimating = true
                 } else {
-                    currentKey = topNewKey // initialize
+                    initialization = true
                 }
             }
 
@@ -198,18 +200,26 @@ class AnimatingComposeStateChanger(
                 }
             }
 
+            val keySlot1 by rememberUpdatedState(when {
+                initialization -> topNewKey
+                else -> topPreviousKey
+            })
+
+            val keySlot2 by rememberUpdatedState(when {
+                initialization -> topPreviousKey
+                else -> topNewKey
+            })
+
             Layout(
                     content = {
-                        if (fullWidth > 0 && fullHeight > 0) {
-                            key(topNewKey) {
-                                topNewKey.RenderComposable(modifier)
-                            }
+                        if (initialization || isAnimating) {
+                            keySlot1?.RenderComposable(modifier)
                         }
                     },
                     measurePolicy = measurePolicy,
                     modifier = when {
-                        !isAnimating -> modifier
-                        else -> animationConfiguration.customComposableTransitions.newComposableTransition.animateNewComposable(
+                        !isAnimating || initialization -> modifier
+                        else -> animationConfiguration.customComposableTransitions.previousComposableTransition.animateComposable(
                             modifier,
                             stateChange,
                             fullWidth,
@@ -221,16 +231,14 @@ class AnimatingComposeStateChanger(
 
             Layout(
                     content = {
-                        if (isAnimating) {
-                            key(topPreviousKey) {
-                                topPreviousKey?.RenderComposable(modifier)
-                            }
+                        if (!initialization || isAnimating) {
+                            keySlot2?.RenderComposable(modifier)
                         }
                     },
                     measurePolicy = measurePolicy,
                     modifier = when {
-                        !isAnimating -> modifier
-                        else -> animationConfiguration.customComposableTransitions.previousComposableTransition.animatePreviousComposable(
+                        !isAnimating || initialization -> modifier
+                        else -> animationConfiguration.customComposableTransitions.newComposableTransition.animateComposable(
                             modifier,
                             stateChange,
                             fullWidth,
