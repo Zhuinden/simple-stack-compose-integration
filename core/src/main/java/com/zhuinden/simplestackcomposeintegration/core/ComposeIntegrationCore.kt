@@ -49,7 +49,9 @@ abstract class DefaultComposeKey {
         val key = this
 
         CompositionLocalProvider(LocalComposeKey provides (key)) {
-            ScreenComposable(modifier = modifier)
+            key(key) {
+                ScreenComposable(modifier = modifier)
+            }
         }
     }
 
@@ -194,29 +196,32 @@ class AnimatingComposeStateChanger(
                 else -> topNewKey
             })
 
+            val previousTransition = animationConfiguration.customComposableTransitions.previousComposableTransition
+            val newTransition = animationConfiguration.customComposableTransitions.newComposableTransition
+
             Layout(
                 content = {
-                    key(keySlot1) {
-                        if (initialization || isAnimating) {
-                            Box(
-                                modifier = when {
-                                    !isAnimating || initialization -> modifier
-                                    else -> animationConfiguration.customComposableTransitions.previousComposableTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
-                                }
-                            ) {
+                    if (initialization || isAnimating) {
+                        Box(
+                            modifier = when {
+                                !isAnimating || initialization -> modifier
+                                else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                            }
+                        ) {
+                            key(keySlot1) {
                                 keySlot1?.RenderComposable(modifier)
                             }
                         }
                     }
 
-                    key(keySlot2) {
-                        if (!initialization || isAnimating) {
-                            Box(
-                                modifier = when {
-                                    !isAnimating || initialization -> modifier
-                                    else -> animationConfiguration.customComposableTransitions.newComposableTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
-                                }
-                            ) {
+                    if (!initialization || isAnimating) {
+                        Box(
+                            modifier = when {
+                                !isAnimating || initialization -> modifier
+                                else -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                            }
+                        ) {
+                            key(keySlot2) {
                                 keySlot2?.RenderComposable(modifier)
                             }
                         }
