@@ -1,5 +1,14 @@
 # Change log
 
+-Simple Stack Compose Integration 0.1.2 (2021-03-04)
+--------------------------------
+
+- API CHANGE: simplified transition configuration. Now it's a single interface (`ComposableTransition`).
+
+- FIX: Flickering on navigation. (However, CoilImage still flickers.)
+
+Note: Saver still does not work yet.
+
 -Simple Stack Compose Integration 0.1.1 (2021-03-03)
 --------------------------------
 - API CHANGE: `ComposeStateChanger` -> `AnimatingComposeStateChanger`, must be wrapped as `AsyncStateChanger`.
