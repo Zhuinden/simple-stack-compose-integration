@@ -226,8 +226,8 @@ class AnimatingComposeStateChanger(
                 content = {
                     allKeys.fastForEach { key ->
                         key(key) {
-                            saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
-                                if (key == topNewKey || (isAnimating && key == initialNewKey)) {
+                            if (key == topNewKey || (isAnimating && key == initialNewKey)) {
+                                saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
                                     Box(
                                         modifier = when {
                                             !isAnimating || initialization -> modifier
@@ -309,8 +309,8 @@ class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
 
             allKeys.fastForEach { key ->
                 key(key) {
-                    saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
-                        if (key == topNewKey) {
+                    if (key == topNewKey) {
+                        saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
                             key.RenderComposable(modifier)
                         }
                     }

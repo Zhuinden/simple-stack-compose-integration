@@ -1,5 +1,9 @@
 # Change log
 
+-Simple Stack Compose Integration 0.2.0 (2021-03-08)
+--------------------------------
+- Actually fix Saver :)
+
 -Simple Stack Compose Integration 0.1.3 (2021-03-08)
 --------------------------------
 
