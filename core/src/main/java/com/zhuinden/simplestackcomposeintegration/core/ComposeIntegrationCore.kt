@@ -210,9 +210,9 @@ class AnimatingComposeStateChanger(
             Layout(
                 content = {
                     allKeys.fastForEach { key ->
-                        saveableStateHolder.SaveableStateProvider(key = key) {
-                            if (key == topNewKey || (isAnimating && key == initialNewKey)) {
-                                key(key) {
+                        key(key) {
+                            saveableStateHolder.SaveableStateProvider(key = key) {
+                                if (key == topNewKey || (isAnimating && key == initialNewKey)) {
                                     Box(
                                         modifier = when {
                                             !isAnimating || initialization -> modifier
