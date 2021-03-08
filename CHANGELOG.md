@@ -1,5 +1,12 @@
 # Change log
 
+-Simple Stack Compose Integration 0.1.3 (2021-03-08)
+--------------------------------
+
+- API CHANGE: `DefaultComposeKey` now requires a `saveableStateProviderKey` that is `Any`. The examples return `this` because keys are already immutable and Parcelable (and data class).
+
+Note: Saver should work, but it does not seem to work yet.
+
 -Simple Stack Compose Integration 0.1.2 (2021-03-04)
 --------------------------------
 
