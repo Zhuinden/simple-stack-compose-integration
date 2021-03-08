@@ -45,6 +45,9 @@ val LocalComposeKey =
  * Please note that it is not Parcelable by default.
  */
 abstract class DefaultComposeKey {
+    /**
+     * The screen rendering call.
+     */
     @Composable
     fun RenderComposable(modifier: Modifier = Modifier) {
         val key = this
@@ -56,6 +59,18 @@ abstract class DefaultComposeKey {
         }
     }
 
+    /**
+     * The key used for the SaveableStateProvider.
+     *
+     * It must be immutable, unique, and saveable into a Bundle.
+     *
+     * If it is `this`, then `this` must be Parcelable.
+     */
+    abstract val saveableStateProviderKey: Any
+
+    /**
+     * The screen composable.
+     */
     @Composable
     protected abstract fun ScreenComposable(modifier: Modifier = Modifier)
 }
@@ -211,7 +226,7 @@ class AnimatingComposeStateChanger(
                 content = {
                     allKeys.fastForEach { key ->
                         key(key) {
-                            saveableStateHolder.SaveableStateProvider(key = key) {
+                            saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
                                 if (key == topNewKey || (isAnimating && key == initialNewKey)) {
                                     Box(
                                         modifier = when {
@@ -244,7 +259,7 @@ class AnimatingComposeStateChanger(
 
                 previousKeys.fastForEach { previousKey ->
                     if (!newKeys.contains(previousKey)) {
-                        saveableStateHolder.removeState(previousKey)
+                        saveableStateHolder.removeState(previousKey.saveableStateProviderKey)
                     }
                 }
 
@@ -294,7 +309,7 @@ class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
 
             allKeys.fastForEach { key ->
                 key(key) {
-                    saveableStateHolder.SaveableStateProvider(key = key) {
+                    saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
                         if (key == topNewKey) {
                             key.RenderComposable(modifier)
                         }
@@ -304,7 +319,7 @@ class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
 
             previousKeys.fastForEach { previousKey ->
                 if (!newKeys.contains(previousKey)) {
-                    saveableStateHolder.removeState(previousKey)
+                    saveableStateHolder.removeState(previousKey.saveableStateProviderKey)
                 }
             }
         }
