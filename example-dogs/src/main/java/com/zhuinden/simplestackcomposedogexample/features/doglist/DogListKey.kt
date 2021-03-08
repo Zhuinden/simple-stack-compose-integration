@@ -29,8 +29,7 @@ data class DogListKey(private val noArgPlaceholder: String = "") : ComposeKey() 
         val viewModel = rememberService<DogListViewModel>()
 
         val dogs = viewModel.dogList.subscribeAsState(OptionalWrapper.absent())
-        val lazyListState = viewModel.lazyListState
 
-        DogListScreen(dogs.value.value, lazyListState)
+        DogListScreen(dogs.value.value)
     }
 }

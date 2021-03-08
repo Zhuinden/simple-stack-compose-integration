@@ -37,7 +37,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     api "com.google.code.findbugs:jsr305:3.0.2"
-    api 'com.github.Zhuinden:simple-stack:2.5.0'
+    api 'com.github.Zhuinden:simple-stack:2.6.0'
 
     def compose_version = "1.0.0-beta01"
 
@@ -56,7 +56,7 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.assertj:assertj-core:3.16.1'
-    testImplementation 'org.mockito:mockito-core:3.4.4'
+    testImplementation 'org.mockito:mockito-core:3.8.0'
     testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.github.Zhuinden:espresso-helper:1.0.0'

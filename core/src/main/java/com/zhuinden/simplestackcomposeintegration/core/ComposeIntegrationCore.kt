@@ -22,6 +22,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
@@ -137,6 +138,8 @@ class AnimatingComposeStateChanger(
             val stateChange = stateChange ?: return
             val callback = callback ?: return
 
+            val saveableStateHolder = rememberSaveableStateHolder()
+
             var completionCallback by remember { mutableStateOf<StateChanger.Callback?>(null) }
 
             val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
@@ -207,20 +210,20 @@ class AnimatingComposeStateChanger(
             Layout(
                 content = {
                     allKeys.fastForEach { key ->
-                        if (key == topNewKey || (isAnimating && key == initialNewKey)) {
-                            key(key) {
-                                Box(
-                                    modifier = when {
-                                        !isAnimating || initialization -> modifier
-                                        else -> when {
-                                            key == topNewKey -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
-                                            else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                        saveableStateHolder.SaveableStateProvider(key = key) {
+                            if (key == topNewKey || (isAnimating && key == initialNewKey)) {
+                                key(key) {
+                                    Box(
+                                        modifier = when {
+                                            !isAnimating || initialization -> modifier
+                                            else -> when {
+                                                key == topNewKey -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                                else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                            }
                                         }
+                                    ) {
+                                        key.RenderComposable(modifier)
                                     }
-                                ) {
-                                    //Log.i("Rendering...",
-                                    //    "Key is initial new key? ${key == initialNewKey} -- key is top? ${key == topNewKey} -- item is ${key.javaClass.simpleName}, anim progress ${animationProgress}, is animating ${isAnimating}, init ${initialization}")
-                                    key.RenderComposable(modifier)
                                 }
                             }
                         }
@@ -238,6 +241,13 @@ class AnimatingComposeStateChanger(
                     lerping.snapTo(0f)
                 }
                 initialNewKey = topNewKey
+
+                previousKeys.fastForEach { previousKey ->
+                    if (!newKeys.contains(previousKey)) {
+                        saveableStateHolder.removeState(previousKey)
+                    }
+                }
+
                 completionCallback!!.stateChangeComplete()
             })
         }
@@ -252,7 +262,7 @@ class AnimatingComposeStateChanger(
 }
 
 /**
- * A state changer that allows switching between composables, animating the transition.
+ * A state changer that allows switching between composables.
  */
 class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
     private var backstackState by mutableStateOf(BackstackState())
@@ -264,10 +274,38 @@ class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
         fun RenderScreen(modifier: Modifier = Modifier) {
             val stateChange = stateChange ?: return
 
-            val topNewKey = stateChange.topNewKey<DefaultComposeKey>()
+            val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
+            val topPreviousKey by rememberUpdatedState(newValue = stateChange.topPreviousKey<DefaultComposeKey>())
 
-            key(topNewKey) {
-                topNewKey.RenderComposable(modifier)
+            val newKeys by rememberUpdatedState(newValue = stateChange.getNewKeys<DefaultComposeKey>())
+            val previousKeys by rememberUpdatedState(newValue = stateChange.getPreviousKeys<DefaultComposeKey>())
+
+            val saveableStateHolder = rememberSaveableStateHolder()
+
+            val allKeys by rememberUpdatedState(newValue = mutableListOf<DefaultComposeKey>().apply {
+                addAll(newKeys)
+
+                previousKeys.fastForEach { previousKey ->
+                    if (!newKeys.contains(previousKey)) {
+                        add(0, previousKey)
+                    }
+                }
+            }.toList())
+
+            allKeys.fastForEach { key ->
+                key(key) {
+                    saveableStateHolder.SaveableStateProvider(key = key) {
+                        if (key == topNewKey) {
+                            key.RenderComposable(modifier)
+                        }
+                    }
+                }
+            }
+
+            previousKeys.fastForEach { previousKey ->
+                if (!newKeys.contains(previousKey)) {
+                    saveableStateHolder.removeState(previousKey)
+                }
             }
         }
     }

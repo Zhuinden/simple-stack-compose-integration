@@ -3,7 +3,6 @@ package com.zhuinden.simplestackcomposedogexample.features.doglist
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -28,7 +27,7 @@ import dev.chrisbanes.accompanist.coil.CoilImage
 import okhttp3.HttpUrl
 
 @Composable
-fun DogListScreen(dogs: List<Dog>?, lazyListState: LazyListState) {
+fun DogListScreen(dogs: List<Dog>?) {
     @Composable
     fun DogItem(dog: Dog) {
         val context = LocalContext.current
@@ -83,9 +82,9 @@ fun DogListScreen(dogs: List<Dog>?, lazyListState: LazyListState) {
     }
 
     @Composable
-    fun DogList(dogs: List<Dog>, lazyListState: LazyListState) {
+    fun DogList(dogs: List<Dog>) {
         Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(modifier = Modifier.fillMaxSize(), state = lazyListState, content = {
+            LazyColumn(modifier = Modifier.fillMaxSize(), content = {
                 this.items(dogs.size, itemContent = { index ->
                     DogItem(dogs[index])
                 })
@@ -115,7 +114,7 @@ fun DogListScreen(dogs: List<Dog>?, lazyListState: LazyListState) {
         if (dogs == null) {
             LoadingIndicator()
         } else {
-            DogList(dogs, lazyListState)
+            DogList(dogs)
         }
     }
 }
