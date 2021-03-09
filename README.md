@@ -67,14 +67,14 @@ Provides defaults for Composable-driven navigation and animation support.
 
 ``` kotlin
 class MainActivity : AppCompatActivity() {
-    private val composeStateChanger = SimpleComposeStateChanger() // <--
+    private val composeStateChanger = AnimatingComposeStateChanger() // <--
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val backstack = Navigator.configure()
             .setScopedServices(DefaultServiceProvider())
-            .setStateChanger(SimpleStateChanger(composeStateChanger))  // <--
+            .setStateChanger(AsyncStateChanger(composeStateChanger))  // <--
             .install(this, androidContentFrame, History.of(FirstKey()))
 
         setContent {
@@ -100,6 +100,8 @@ and
 
 ``` kotlin
 abstract class ComposeKey: DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
+    override val saveableStateProviderKey: Any = this // data class + parcelable!
+
     override fun getScopeTag(): String = javaClass.name
 
     override fun bindServices(serviceBinder: ServiceBinder) {
@@ -112,7 +114,7 @@ and
 ``` kotlin
 @Immutable
 @Parcelize
-class SecondKey: ComposeKey() {
+data class SecondKey(private val noArgsPlaceholder: String = ""): ComposeKey() {
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
         SecondScreen(modifier)
