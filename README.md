@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val backstack = Navigator.configure()
-            .setScopedServices(DefaultServiceProvider())
             .setStateChanger(AsyncStateChanger(composeStateChanger))  // <--
             .install(this, androidContentFrame, History.of(FirstKey()))
 
@@ -99,13 +98,8 @@ class MainActivity : AppCompatActivity() {
 and
 
 ``` kotlin
-abstract class ComposeKey: DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
+abstract class ComposeKey: DefaultComposeKey(), Parcelable {
     override val saveableStateProviderKey: Any = this // data class + parcelable!
-
-    override fun getScopeTag(): String = javaClass.name
-
-    override fun bindServices(serviceBinder: ServiceBinder) {
-    }
 }
 ```
 
