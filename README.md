@@ -116,6 +116,29 @@ data class SecondKey(private val noArgsPlaceholder: String = ""): ComposeKey() {
 }
 ```
 
+## What about ViewModels?
+
+You can use `ScopedServices` for that.
+
+``` kotlin
+abstract class ComposeKey : DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
+    override val saveableStateProviderKey: Any = this
+
+    override fun getScopeTag(): String = javaClass.name
+
+    override fun bindServices(serviceBinder: ServiceBinder) {
+    }
+}
+```
+
+and
+
+``` kotlin
+val backstack = Navigator.configure()
+                    .setScopedServices(DefaultServiceProvider())
+                    // ...
+```
+
 ## License
 
     Copyright 2021 Gabor Varadi
