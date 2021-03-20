@@ -139,6 +139,29 @@ val backstack = Navigator.configure()
                     // ...
 ```
 
+and
+
+``` kotlin
+@Immutable
+@Parcelize
+data class DogListKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
+    override fun bindServices(serviceBinder: ServiceBinder) {
+        super.bindServices(serviceBinder)
+        with(serviceBinder) {
+            add(DogListViewModel(lookup<DogDataSource>(), backstack))
+        }
+    }
+
+    @Composable
+    override fun ScreenComposable(modifier: Modifier) {
+        val viewModel = rememberService<DogListViewModel>()
+
+        val dogs by viewModel.dogList.subscribeAsState(OptionalWrapper.absent())
+
+        DogListScreen(dogs.value)
+    }
+```
+
 ## License
 
     Copyright 2021 Gabor Varadi
