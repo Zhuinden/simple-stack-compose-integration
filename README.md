@@ -146,7 +146,6 @@ and
 @Parcelize
 data class DogListKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
     override fun bindServices(serviceBinder: ServiceBinder) {
-        super.bindServices(serviceBinder)
         with(serviceBinder) {
             add(DogListViewModel(lookup<DogDataSource>(), backstack))
         }
