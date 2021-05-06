@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val backstack = Navigator.configure()
-            .setScopedServices(DefaultServiceProvider())
             .setStateChanger(AsyncStateChanger(composeStateChanger))  // <--
             .install(this, androidContentFrame, History.of(FirstKey()))
 
@@ -99,13 +98,8 @@ class MainActivity : AppCompatActivity() {
 and
 
 ``` kotlin
-abstract class ComposeKey: DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
+abstract class ComposeKey: DefaultComposeKey(), Parcelable {
     override val saveableStateProviderKey: Any = this // data class + parcelable!
-
-    override fun getScopeTag(): String = javaClass.name
-
-    override fun bindServices(serviceBinder: ServiceBinder) {
-    }
 }
 ```
 
@@ -118,6 +112,52 @@ data class SecondKey(private val noArgsPlaceholder: String = ""): ComposeKey() {
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
         SecondScreen(modifier)
+    }
+}
+```
+
+## What about ViewModels?
+
+You can use `ScopedServices` for that.
+
+``` kotlin
+abstract class ComposeKey : DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
+    override val saveableStateProviderKey: Any = this
+
+    override fun getScopeTag(): String = javaClass.name
+
+    override fun bindServices(serviceBinder: ServiceBinder) {
+    }
+}
+```
+
+and
+
+``` kotlin
+val backstack = Navigator.configure()
+                    .setScopedServices(DefaultServiceProvider())
+                    // ...
+```
+
+and
+
+``` kotlin
+@Immutable
+@Parcelize
+data class DogListKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
+    override fun bindServices(serviceBinder: ServiceBinder) {
+        with(serviceBinder) {
+            add(DogListViewModel(lookup<DogDataSource>(), backstack))
+        }
+    }
+
+    @Composable
+    override fun ScreenComposable(modifier: Modifier) {
+        val viewModel = rememberService<DogListViewModel>()
+
+        val dogs by viewModel.dogList.subscribeAsState(OptionalWrapper.absent())
+
+        DogListScreen(dogs.value)
     }
 }
 ```
