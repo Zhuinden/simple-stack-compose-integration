@@ -12,13 +12,13 @@ import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.History
 import com.zhuinden.simplestack.navigator.Navigator
 import com.zhuinden.simplestackcomposedogexample.features.doglist.DogListKey
-import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger
 import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
+import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger
 import com.zhuinden.simplestackextensions.navigatorktx.androidContentFrame
 import com.zhuinden.simplestackextensions.services.DefaultServiceProvider
 
 class MainActivity : AppCompatActivity() {
-    private val composeStateChanger = AnimatingComposeStateChanger()
+    private val composeStateChanger = ComposeStateChanger()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

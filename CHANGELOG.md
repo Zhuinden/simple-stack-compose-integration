@@ -1,5 +1,17 @@
 # Change log
 
+-Simple Stack Compose Integration 0.3.0 (2021-05-06)
+--------------------------------
+- Remove `SimpleComposeStateChanger` because new Compose version killed it for some reason.
+
+- Renamed `AnimatingComposeStateChanger` to `ComposeStateChanger`. It is used with `AsyncStateChanger`.
+
+- Update Jetpack Compose to beta06.
+
+- Update Simple-Stack to 2.6.1.
+
+- Update Simple-Stack Extensions to 2.2.1.
+
 -Simple Stack Compose Integration 0.2.0 (2021-03-08)
 --------------------------------
 - Actually fix Saver :)

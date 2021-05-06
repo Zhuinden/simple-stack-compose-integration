@@ -21,8 +21,17 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
@@ -30,8 +39,11 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
-import com.zhuinden.simplestack.*
-import com.zhuinden.simplestackcomposeintegration.core.AnimatingComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.ComposableTransition
+import com.zhuinden.simplestack.AsyncStateChanger
+import com.zhuinden.simplestack.Backstack
+import com.zhuinden.simplestack.StateChange
+import com.zhuinden.simplestack.StateChanger
+import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.ComposableTransition
 
 /**
  * Composition local to access the key within screens.
@@ -78,7 +90,7 @@ abstract class DefaultComposeKey {
 /**
  * A state changer that allows switching between composables, animating the transition.
  */
-class AnimatingComposeStateChanger(
+class ComposeStateChanger(
     private val animationConfiguration: AnimationConfiguration = AnimationConfiguration()
 ): AsyncStateChanger.NavigationHandler {
     private var backstackState by mutableStateOf(BackstackState(animationConfiguration = animationConfiguration))
@@ -275,68 +287,6 @@ class AnimatingComposeStateChanger(
         backstackState.RenderScreen(modifier)
     }
 }
-
-/**
- * A state changer that allows switching between composables.
- */
-class SimpleComposeStateChanger: SimpleStateChanger.NavigationHandler {
-    private var backstackState by mutableStateOf(BackstackState())
-
-    private data class BackstackState(
-        private val stateChange: StateChange? = null,
-    ) {
-        @Composable
-        fun RenderScreen(modifier: Modifier = Modifier) {
-            val stateChange = stateChange ?: return
-
-            val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
-            val topPreviousKey by rememberUpdatedState(newValue = stateChange.topPreviousKey<DefaultComposeKey>())
-
-            val newKeys by rememberUpdatedState(newValue = stateChange.getNewKeys<DefaultComposeKey>())
-            val previousKeys by rememberUpdatedState(newValue = stateChange.getPreviousKeys<DefaultComposeKey>())
-
-            val saveableStateHolder = rememberSaveableStateHolder()
-
-            val allKeys by rememberUpdatedState(newValue = mutableListOf<DefaultComposeKey>().apply {
-                addAll(newKeys)
-
-                previousKeys.fastForEach { previousKey ->
-                    if (!newKeys.contains(previousKey)) {
-                        add(0, previousKey)
-                    }
-                }
-            }.toList())
-
-            allKeys.fastForEach { key ->
-                key(key) {
-                    if (key == topNewKey) {
-                        saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
-                            key.RenderComposable(modifier)
-                        }
-                    }
-                }
-            }
-
-            previousKeys.fastForEach { previousKey ->
-                if (!newKeys.contains(previousKey)) {
-                    saveableStateHolder.removeState(previousKey.saveableStateProviderKey)
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun RenderScreen(modifier: Modifier = Modifier) {
-        LocalBackstack.current // force `BackstackProvider` to be set
-
-        backstackState.RenderScreen(modifier)
-    }
-
-    override fun onNavigationEvent(stateChange: StateChange) {
-        backstackState = BackstackState(stateChange)
-    }
-}
-
 
 /**
  * Composition local to access the Backstack within screens.
