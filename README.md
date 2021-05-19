@@ -35,14 +35,14 @@ and then, add the dependency to your module's `build.gradle.kts` (or `build.grad
 
 ``` kotlin
 // build.gradle.kts
-implementation("com.github.Zhuinden.simple-stack-compose-integration:0.3.0")
+implementation("com.github.Zhuinden.simple-stack-compose-integration:0.3.1")
 ```
 
 or
 
 ``` groovy
 // build.gradle
-implementation 'com.github.Zhuinden.simple-stack-compose-integration:0.3.0'
+implementation 'com.github.Zhuinden.simple-stack-compose-integration:0.3.1'
 ```
 
 As Compose requires Java-8 bytecode, you need to also add this:
@@ -147,15 +147,15 @@ and
 data class DogListKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
     override fun bindServices(serviceBinder: ServiceBinder) {
         with(serviceBinder) {
-            add(DogListViewModel(lookup<DogDataSource>(), backstack))
+            add(DogListViewModel(lookup<DogDataSource>(), backstack)) // <--
         }
     }
 
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
-        val viewModel = rememberService<DogListViewModel>()
+        val viewModel = rememberService<DogListViewModel>() // <--
 
-        val dogs by viewModel.dogList.subscribeAsState(OptionalWrapper.absent())
+        val dogs by viewModel.dogList.observeAsState()
 
         DogListScreen(dogs.value)
     }

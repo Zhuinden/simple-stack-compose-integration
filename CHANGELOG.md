@@ -1,5 +1,10 @@
 # Change log
 
+-Simple Stack Compose Integration 0.3.1 (2021-05-19)
+--------------------------------
+
+- Update Compose to 1.0.0-Beta07.
+
 -Simple Stack Compose Integration 0.3.0 (2021-05-06)
 --------------------------------
 - Remove `SimpleComposeStateChanger` because new Compose version killed it for some reason.
