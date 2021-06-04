@@ -39,7 +39,7 @@ dependencies {
     api "com.google.code.findbugs:jsr305:3.0.2"
     api 'com.github.Zhuinden:simple-stack:2.6.1'
 
-    def compose_version = "1.0.0-beta07"
+    def compose_version = "1.0.0-beta08"
 
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"

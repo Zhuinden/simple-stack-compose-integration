@@ -1,9 +1,14 @@
 # Change log
 
+-Simple Stack Compose Integration 0.3.2 (2021-06-04)
+--------------------------------
+
+- Update Compose to 1.0.0-beta08.
+
 -Simple Stack Compose Integration 0.3.1 (2021-05-19)
 --------------------------------
 
-- Update Compose to 1.0.0-Beta07.
+- Update Compose to 1.0.0-beta07.
 
 -Simple Stack Compose Integration 0.3.0 (2021-05-06)
 --------------------------------
