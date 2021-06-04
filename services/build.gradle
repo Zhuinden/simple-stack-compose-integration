@@ -31,6 +31,9 @@ android {
     buildFeatures {
         compose true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.0.0-beta08"
+    }
 }
 
 dependencies {
@@ -41,6 +44,7 @@ dependencies {
     api "com.google.code.findbugs:jsr305:3.0.2"
     api 'com.github.Zhuinden:simple-stack:2.6.1'
     api 'com.github.Zhuinden.simple-stack-extensions:services-ktx:2.2.1'
+
     implementation 'androidx.compose.runtime:runtime:1.0.0-beta08'
 
     testImplementation 'junit:junit:4.13.2'
