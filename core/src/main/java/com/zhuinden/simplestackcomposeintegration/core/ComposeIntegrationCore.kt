@@ -23,11 +23,12 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
@@ -44,6 +45,7 @@ import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.StateChange
 import com.zhuinden.simplestack.StateChanger
 import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.ComposableTransition
+import kotlinx.coroutines.launch
 
 /**
  * Composition local to access the key within screens.
@@ -167,6 +169,7 @@ class ComposeStateChanger(
 
             val saveableStateHolder = rememberSaveableStateHolder()
 
+            var completionCallbackCalled by remember { mutableStateOf(false) }
             var completionCallback by remember { mutableStateOf<StateChanger.Callback?>(null) }
 
             val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
@@ -181,6 +184,7 @@ class ComposeStateChanger(
             var initialization by remember { mutableStateOf(true) }
 
             if (completionCallback !== callback) {
+                completionCallbackCalled = false
                 completionCallback = callback
 
                 if (topPreviousKey != null) {
@@ -259,23 +263,41 @@ class ComposeStateChanger(
                 measurePolicy = measurePolicy,
             )
 
-            LaunchedEffect(key1 = completionCallback, block = {
-                if (isAnimating) {
-                    lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
-                        animationProgress = this.value
-                    }
-                    isAnimating = false
-                    lerping.snapTo(0f)
-                }
-                initialNewKey = topNewKey
+            val coroutineScope = rememberCoroutineScope()
 
-                previousKeys.fastForEach { previousKey ->
-                    if (!newKeys.contains(previousKey)) {
-                        saveableStateHolder.removeState(previousKey.saveableStateProviderKey)
+            DisposableEffect(key1 = completionCallback, effect = {
+                val job = coroutineScope.launch {
+                    if (isAnimating) {
+                        lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
+                            animationProgress = this.value
+                        }
+                        isAnimating = false
+                        lerping.snapTo(0f)
+                    }
+                    initialNewKey = topNewKey
+
+                    previousKeys.fastForEach { previousKey ->
+                        if (!newKeys.contains(previousKey)) {
+                            saveableStateHolder.removeState(previousKey.saveableStateProviderKey)
+                        }
+                    }
+
+                    if (!completionCallbackCalled) {
+                        completionCallbackCalled = true // this should technically be the same as doing nothing, if DisposableEffect is correct.
+                        completionCallback!!.stateChangeComplete()
                     }
                 }
 
-                completionCallback!!.stateChangeComplete()
+                onDispose {
+                    try {
+                        if (!job.isCompleted) {
+                            job.cancel()
+                        }
+                    } catch(e: Throwable) {
+                        // I don't think this can happen, but even if it did, it wouldn't be useful here.
+                        // Having to cancel the job would only happen if the animation is in progress while the composable is removed.
+                    }
+                }
             })
         }
     }

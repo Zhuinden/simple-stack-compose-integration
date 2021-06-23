@@ -1,5 +1,10 @@
 # Change log
 
+-Simple Stack Compose Integration 0.4.3 (2021-06-23)
+--------------------------------
+
+- INTERNAL/FIX: Change usage of `LaunchedEffect` to `DisposableEffect` in ComposeStateChanger. This should potentially fix the elusive issue #7.
+
 -Simple Stack Compose Integration 0.4.2 (2021-06-23)
 --------------------------------
 
