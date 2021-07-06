@@ -87,7 +87,7 @@ abstract class DefaultComposeKey {
      * The screen composable.
      */
     @Composable
-    protected abstract fun ScreenComposable(modifier: Modifier = Modifier)
+    protected abstract fun ScreenComposable(modifier: Modifier)
 }
 
 /**
@@ -117,6 +117,7 @@ class ComposeStateChanger(
         /**
          * The previous transition.
          */
+        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val previousComposableTransition: ComposableTransition =
             ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
                 modifier.then(
@@ -130,6 +131,7 @@ class ComposeStateChanger(
         /**
          * The new transition.
          */
+        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val newComposableTransition: ComposableTransition =
             ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
                 modifier.then(
@@ -143,6 +145,7 @@ class ComposeStateChanger(
         /**
          * The animation spec.
          */
+        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val animationSpec: ComposableAnimationSpec = ComposableAnimationSpec { stateChange ->
             TweenSpec(250, 0, LinearEasing)
         },
@@ -151,7 +154,7 @@ class ComposeStateChanger(
          */
         val contentWrapper: ComposableContentWrapper = object: ComposableContentWrapper {
             @Composable
-            override fun ContentWrapper(stateChange: StateChange, block: @Composable () -> Unit) {
+            override fun ContentWrapper(stateChange: StateChange, block: @Composable() () -> Unit) {
                 block()
             }
         }
@@ -176,7 +179,7 @@ class ComposeStateChanger(
          */
         interface ComposableContentWrapper {
             @Composable
-            fun ContentWrapper(stateChange: StateChange, block: @Composable () -> Unit)
+            fun ContentWrapper(stateChange: StateChange, block: @Composable() () -> Unit)
         }
     }
 
@@ -348,7 +351,7 @@ val LocalBackstack =
  * Provider for the backstack composition local.
  */
 @Composable
-fun BackstackProvider(backstack: Backstack, content: @Composable () -> Unit) {
+fun BackstackProvider(backstack: Backstack, content: @Composable() () -> Unit) {
     CompositionLocalProvider(LocalBackstack provides (backstack)) {
         content()
     }

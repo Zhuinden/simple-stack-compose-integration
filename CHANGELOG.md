@@ -9,6 +9,8 @@
 
 - ADD: `AnimationConfiguration.ComposableContentWrapper`, which is a block around the animated content that can be customized.
 
+- UPDATE: Compose to 1.0.0-rc01.
+
 -Simple Stack Compose Integration 0.4.3 (2021-06-23)
 --------------------------------
 
