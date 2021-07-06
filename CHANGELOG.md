@@ -1,5 +1,14 @@
 # Change log
 
+-Simple Stack Compose Integration 0.5.0 (XXXX-XX-XX)
+--------------------------------
+
+- BREAKING CHANGE: Separate `AnimationSpec` from the global transition definition. This allows for different animation specs for different screen transitions.
+
+- BREAKING CHANGE: Kill `AnimationConfiguration.CustomComposableTransitions`. The two `ComposableTransition`s are now top-level property of `AnimationConfiguration` along with `ComposableAnimationSpec`.
+
+- ADD: `AnimationConfiguration.ComposableContentWrapper`, which is a block around the animated content that can be customized.
+
 -Simple Stack Compose Integration 0.4.3 (2021-06-23)
 --------------------------------
 

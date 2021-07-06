@@ -17,7 +17,7 @@ package com.zhuinden.simplestackcomposeintegration.core
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
@@ -44,7 +44,8 @@ import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.StateChange
 import com.zhuinden.simplestack.StateChanger
-import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.CustomComposableTransitions.ComposableTransition
+import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.ComposableAnimationSpec
+import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger.AnimationConfiguration.ComposableTransition
 import kotlinx.coroutines.launch
 
 /**
@@ -94,7 +95,7 @@ abstract class DefaultComposeKey {
  */
 class ComposeStateChanger(
     private val animationConfiguration: AnimationConfiguration = AnimationConfiguration()
-): AsyncStateChanger.NavigationHandler {
+) : AsyncStateChanger.NavigationHandler {
     private var backstackState by mutableStateOf(BackstackState(animationConfiguration = animationConfiguration))
 
     override fun onNavigationEvent(
@@ -113,47 +114,69 @@ class ComposeStateChanger(
      * Configuration for the screen switching animations.
      */
     class AnimationConfiguration(
-        val animationSpec: FiniteAnimationSpec<Float> = TweenSpec(250, 0, LinearEasing),
-        val customComposableTransitions: CustomComposableTransitions = CustomComposableTransitions()
+        /**
+         * The previous transition.
+         */
+        val previousComposableTransition: ComposableTransition =
+            ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
+                modifier.then(
+                    when (stateChange.direction) {
+                        StateChange.FORWARD -> Modifier.graphicsLayer(translationX = 0 + (-1) * fullWidth * animationProgress)
+                        StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = 0 + fullWidth * animationProgress)
+                        else /* REPLACE */ -> Modifier.graphicsLayer(alpha = (1 - animationProgress))
+                    }
+                )
+            },
+        /**
+         * The new transition.
+         */
+        val newComposableTransition: ComposableTransition =
+            ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
+                modifier.then(
+                    when (stateChange.direction) {
+                        StateChange.FORWARD -> Modifier.graphicsLayer(translationX = fullWidth + (-1) * fullWidth * animationProgress)
+                        StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = -1 * fullWidth + fullWidth * animationProgress)
+                        else /* REPLACE */ -> Modifier.graphicsLayer(alpha = 0 + animationProgress)
+                    }
+                )
+            },
+        /**
+         * The animation spec.
+         */
+        val animationSpec: ComposableAnimationSpec = ComposableAnimationSpec { stateChange ->
+            TweenSpec(250, 0, LinearEasing)
+        },
+        /**
+         * An optional composable content wrapper.
+         */
+        val contentWrapper: ComposableContentWrapper = object: ComposableContentWrapper {
+            @Composable
+            override fun ContentWrapper(stateChange: StateChange, block: @Composable () -> Unit) {
+                block()
+            }
+        }
     ) {
         /**
-         * Allows customizing the screen switching animations.
+         * An interface to describe transition of a composables.
          */
-        class CustomComposableTransitions(
-            /**
-             * The previous transition.
-             */
-            val previousComposableTransition: ComposableTransition =
-                ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
-                    modifier.then(
-                        when (stateChange.direction) {
-                            StateChange.FORWARD -> Modifier.graphicsLayer(translationX = 0 + (-1) * fullWidth * animationProgress)
-                            StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = 0 + fullWidth * animationProgress)
-                            else /* REPLACE */ -> Modifier.graphicsLayer(alpha = (1 - animationProgress))
-                        }
-                    )
-                },
-            /**
-             * The new transition.
-             */
-            val newComposableTransition: ComposableTransition =
-                ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
-                    modifier.then(
-                        when (stateChange.direction) {
-                            StateChange.FORWARD -> Modifier.graphicsLayer(translationX = fullWidth + (-1) * fullWidth * animationProgress)
-                            StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = -1 * fullWidth + fullWidth * animationProgress)
-                            else /* REPLACE */ -> Modifier.graphicsLayer(alpha = 0 + animationProgress)
-                        }
-                    )
-                },
-        ) {
-            /**
-             * An interface to describe transition of a composables.
-             */
-            fun interface ComposableTransition {
-                @SuppressLint("ModifierFactoryExtensionFunction")
-                fun animateComposable(modifier: Modifier, stateChange: StateChange, fullWidth: Int, fullHeight: Int, animationProgress: Float): Modifier
-            }
+        fun interface ComposableTransition {
+            @SuppressLint("ModifierFactoryExtensionFunction")
+            fun animateComposable(modifier: Modifier, stateChange: StateChange, fullWidth: Int, fullHeight: Int, animationProgress: Float): Modifier
+        }
+
+        /**
+         * An interface to describe animation spec of transitions.
+         */
+        fun interface ComposableAnimationSpec {
+            fun defineAnimationSpec(stateChange: StateChange): AnimationSpec<Float>
+        }
+
+        /**
+         * An interface to describe an optional content wrapper for the animated content.
+         */
+        interface ComposableContentWrapper {
+            @Composable
+            fun ContentWrapper(stateChange: StateChange, block: @Composable () -> Unit)
         }
     }
 
@@ -218,8 +241,10 @@ class ComposeStateChanger(
                 }
             }
 
-            val previousTransition = animationConfiguration.customComposableTransitions.previousComposableTransition
-            val newTransition = animationConfiguration.customComposableTransitions.newComposableTransition
+            val previousTransition = animationConfiguration.previousComposableTransition
+            val newTransition = animationConfiguration.newComposableTransition
+            
+            val contentWrapper = animationConfiguration.contentWrapper
 
             var initialNewKey by remember { mutableStateOf(topNewKey) }
 
@@ -240,18 +265,20 @@ class ComposeStateChanger(
                 content = {
                     allKeys.fastForEach { key ->
                         key(key) {
-                            if (key == topNewKey || (isAnimating && key == initialNewKey)) {
-                                saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
-                                    Box(
-                                        modifier = when {
-                                            !isAnimating || initialization -> modifier
-                                            else -> when {
-                                                key == topNewKey -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
-                                                else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                            contentWrapper.ContentWrapper(stateChange = stateChange) {
+                                if (key == topNewKey || (isAnimating && key == initialNewKey)) {
+                                    saveableStateHolder.SaveableStateProvider(key = key.saveableStateProviderKey) {
+                                        Box(
+                                            modifier = when {
+                                                !isAnimating || initialization -> modifier
+                                                else -> when {
+                                                    key == topNewKey -> newTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                                    else -> previousTransition.animateComposable(modifier, stateChange, fullWidth, fullHeight, animationProgress)
+                                                }
                                             }
+                                        ) {
+                                            key.RenderComposable(modifier)
                                         }
-                                    ) {
-                                        key.RenderComposable(modifier)
                                     }
                                 }
                             }
@@ -272,7 +299,7 @@ class ComposeStateChanger(
 
                 val job = coroutineScope.launch {
                     if (isAnimating) {
-                        lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
+                        lerping.animateTo(1.0f, animationConfiguration.animationSpec.defineAnimationSpec(stateChange = stateChange)) {
                             animationProgress = this.value
                         }
                         isAnimating = false
@@ -294,7 +321,7 @@ class ComposeStateChanger(
                         if (!job.isCompleted) {
                             job.cancel()
                         }
-                    } catch(e: Throwable) {
+                    } catch (e: Throwable) {
                         // I don't think this can happen, but even if it did, it wouldn't be useful here.
                         // Having to cancel the job would only happen if the animation is in progress while the composable is removed.
                     }
