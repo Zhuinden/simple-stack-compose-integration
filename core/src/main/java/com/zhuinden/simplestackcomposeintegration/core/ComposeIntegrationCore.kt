@@ -16,6 +16,7 @@
 package com.zhuinden.simplestackcomposeintegration.core
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
@@ -316,7 +317,11 @@ class ComposeStateChanger(
                         }
                     }
 
-                    completionCallback!!.stateChangeComplete()
+                    try {
+                        completionCallback!!.stateChangeComplete()
+                    } catch(e: IllegalStateException) {
+                        Log.i("ComposeStateChanger", "Unexpected double call to completion callback", e)
+                    }
                 }
 
                 onDispose {
