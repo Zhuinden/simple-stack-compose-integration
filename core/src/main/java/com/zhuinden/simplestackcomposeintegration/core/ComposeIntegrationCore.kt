@@ -169,7 +169,6 @@ class ComposeStateChanger(
 
             val saveableStateHolder = rememberSaveableStateHolder()
 
-            var completionCallbackCalled by remember { mutableStateOf(false) }
             var completionCallback by remember { mutableStateOf<StateChanger.Callback?>(null) }
 
             val topNewKey by rememberUpdatedState(newValue = stateChange.topNewKey<DefaultComposeKey>())
@@ -184,7 +183,6 @@ class ComposeStateChanger(
             var initialization by remember { mutableStateOf(true) }
 
             if (completionCallback !== callback) {
-                completionCallbackCalled = false
                 completionCallback = callback
 
                 if (topPreviousKey != null) {
@@ -266,6 +264,12 @@ class ComposeStateChanger(
             val coroutineScope = rememberCoroutineScope()
 
             DisposableEffect(key1 = completionCallback, effect = {
+                @Suppress("NAME_SHADOWING")
+                val topNewKey = topNewKey // ensure this is kept while the animation is progressing, I guess?
+
+                @Suppress("NAME_SHADOWING")
+                val completionCallback = completionCallback  // ensure this is kept while the animation is progressing, I guess?
+
                 val job = coroutineScope.launch {
                     if (isAnimating) {
                         lerping.animateTo(1.0f, animationConfiguration.animationSpec) {
@@ -282,10 +286,7 @@ class ComposeStateChanger(
                         }
                     }
 
-                    if (!completionCallbackCalled) {
-                        completionCallbackCalled = true // this should technically be the same as doing nothing, if DisposableEffect is correct.
-                        completionCallback!!.stateChangeComplete()
-                    }
+                    completionCallback!!.stateChangeComplete()
                 }
 
                 onDispose {
