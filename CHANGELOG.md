@@ -1,7 +1,6 @@
 # Change log
 
--Simple Stack Compose Integration 0.5.0 (XXXX-XX-XX)
---------------------------------
+-Simple Stack Compose Integration 0.5.0 (2021-07-06)
 
 - BREAKING CHANGE: Separate `AnimationSpec` from the global transition definition. This allows for different animation specs for different screen transitions.
 
