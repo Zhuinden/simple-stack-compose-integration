@@ -1,6 +1,15 @@
 # Change log
 
+
+-Simple Stack Compose Integration 0.5.1 (2021-07-28)
+--------------------------------
+
+- UPDATE: Compose to 1.0.0-rc02.
+
+(Kotlin version is still 1.5.10 as expected by 1.0.0-rc02)
+
 -Simple Stack Compose Integration 0.5.0 (2021-07-06)
+--------------------------------
 
 - BREAKING CHANGE: Separate `AnimationSpec` from the global transition definition. This allows for different animation specs for different screen transitions.
 

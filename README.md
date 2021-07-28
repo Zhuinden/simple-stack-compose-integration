@@ -35,14 +35,14 @@ and then, add the dependency to your module's `build.gradle.kts` (or `build.grad
 
 ``` kotlin
 // build.gradle.kts
-implementation("com.github.Zhuinden:simple-stack-compose-integration:0.5.0")
+implementation("com.github.Zhuinden:simple-stack-compose-integration:0.5.1")
 ```
 
 or
 
 ``` groovy
 // build.gradle
-implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.5.0'
+implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.5.1'
 ```
 
 As Compose requires Java-8 bytecode, you need to also add this:
@@ -60,7 +60,7 @@ buildFeatures {
     compose true
 }
 composeOptions {
-    kotlinCompilerExtensionVersion "1.0.0-rc01"
+    kotlinCompilerExtensionVersion "1.0.0-rc02"
 }
 ```
 
