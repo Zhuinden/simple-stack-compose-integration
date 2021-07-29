@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
@@ -27,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.size.PixelSize
-import com.google.accompanist.coil.rememberCoilPainter
 import com.zhuinden.simplestackcomposedogexample.core.models.contentDescription
 import com.zhuinden.simplestackcomposedogexample.data.models.Dog
 import com.zhuinden.simplestackcomposedogexample.features.dogdetail.DogDetailKey
@@ -57,7 +58,7 @@ fun DogListScreen(dogs: List<Dog>?) {
                 if (fullWidth == 0) {
                     CircularProgressIndicator()
                 } else {
-                    val painter = rememberCoilPainter(ImageRequest.Builder(context)
+                    val painter = rememberImagePainter(ImageRequest.Builder(context)
                         .size(density.run { PixelSize(fullWidth, 160.dp.toPx().toInt()) })
                         .data(HttpUrl.parse(dog.imageUrl))
                         .build())
@@ -68,7 +69,7 @@ fun DogListScreen(dogs: List<Dog>?) {
                         contentScale = ContentScale.FillWidth,
                         modifier = Modifier.clickable {
                             backstack.goTo(DogDetailKey(dog))
-                        },
+                        }.width(density.run { fullWidth.toDp() }),
                     )
                 }
             }

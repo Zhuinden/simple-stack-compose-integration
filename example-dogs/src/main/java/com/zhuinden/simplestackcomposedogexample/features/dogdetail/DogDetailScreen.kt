@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-import com.google.accompanist.coil.rememberCoilPainter
 import com.zhuinden.simplestackcomposedogexample.core.models.contentDescription
 import com.zhuinden.simplestackcomposedogexample.data.models.Dog
 import okhttp3.HttpUrl
@@ -31,7 +31,7 @@ fun DogDetailScreen(dog: Dog) {
     val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.verticalScroll(state = scrollState)) {
-        val painter = rememberCoilPainter(ImageRequest.Builder(context).data(HttpUrl.parse(dog.imageUrl)).build())
+        val painter = rememberImagePainter(ImageRequest.Builder(context).data(HttpUrl.parse(dog.imageUrl)).build())
 
         Image(
             painter = painter,

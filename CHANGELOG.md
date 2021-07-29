@@ -1,5 +1,11 @@
 # Change log
 
+-Simple Stack Compose Integration 0.9.0 (2021-07-29)
+--------------------------------
+
+- UPDATE: Compose to 1.0.0.
+
+(Kotlin version is still 1.5.10 as expected by 1.0.0)
 
 -Simple Stack Compose Integration 0.5.1 (2021-07-28)
 --------------------------------
