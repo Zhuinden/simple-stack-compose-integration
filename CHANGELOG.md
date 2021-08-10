@@ -1,5 +1,14 @@
 # Change log
 
+-Simple Stack Compose Integration 0.9.1 (2021-08-10)
+--------------------------------
+
+- UPDATE: Compose to 1.0.1.
+
+- UPDATE: Kotlin to 1.5.21.
+
+(Kotlin version is still 1.5.10 as expected by 1.0.0)
+
 -Simple Stack Compose Integration 0.9.0 (2021-07-29)
 --------------------------------
 
