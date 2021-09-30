@@ -33,7 +33,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion "1.0.1"
+        kotlinCompilerExtensionVersion "1.0.3"
     }
 }
 
@@ -45,7 +45,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":services"))
 
-    def compose_version = "1.0.1"
+    def compose_version = "1.0.3"
 
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
