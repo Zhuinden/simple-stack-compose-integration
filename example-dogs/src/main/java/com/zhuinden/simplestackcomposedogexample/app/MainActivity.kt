@@ -1,6 +1,7 @@
 package com.zhuinden.simplestackcomposedogexample.app
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
@@ -20,8 +21,20 @@ import com.zhuinden.simplestackextensions.services.DefaultServiceProvider
 class MainActivity : AppCompatActivity() {
     private val composeStateChanger = ComposeStateChanger()
 
+    private val backPressedCallback = object: OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (!Navigator.onBackPressed(this@MainActivity)) {
+                this.remove() // this is the only safe way to invoke onBackPressed while cancelling the execution of this callback
+                onBackPressed() // this is the only safe way to invoke onBackPressed while cancelling the execution of this callback
+                this@MainActivity.onBackPressedDispatcher.addCallback(this) // this is the only safe way to invoke onBackPressed while cancelling the execution of this callback
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(backPressedCallback)
 
         val app = application as CustomApplication
 
@@ -44,9 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        if (!Navigator.onBackPressed(this)) {
-            super.onBackPressed()
-        }
+    override final fun onBackPressed() {
+        super.onBackPressed()
     }
 }

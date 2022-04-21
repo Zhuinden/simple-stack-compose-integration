@@ -1,5 +1,17 @@
 # Change log
 
+-Simple Stack Compose Integration 0.9.5 (2022-04-21)
+--------------------------------
+
+- UPDATE: simple-stack to 2.6.4.
+
+- UPDATE: Compose to 1.1.1.
+
+- UPDATE: Kotlin to 1.6.10.
+
+- Moved to `maven-publish`, ensure that sources-jar gets added.
+
+
 -Simple Stack Compose Integration 0.9.4 (2021-10-21)
 --------------------------------
 

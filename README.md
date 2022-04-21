@@ -50,14 +50,14 @@ and then, add the dependency to your module's `build.gradle.kts` (or `build.grad
 
 ``` kotlin
 // build.gradle.kts
-implementation("com.github.Zhuinden:simple-stack-compose-integration:0.9.4")
+implementation("com.github.Zhuinden:simple-stack-compose-integration:0.9.5")
 ```
 
 or
 
 ``` groovy
 // build.gradle
-implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.9.4'
+implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.9.5'
 ```
 
 As Compose requires Java-8 bytecode, you need to also add this:
@@ -75,7 +75,7 @@ buildFeatures {
     compose true
 }
 composeOptions {
-    kotlinCompilerExtensionVersion "1.0.4"
+    kotlinCompilerExtensionVersion '1.1.1'
 }
 ```
 
@@ -87,8 +87,20 @@ Provides defaults for Composable-driven navigation and animation support.
 class MainActivity : AppCompatActivity() {
     private val composeStateChanger = ComposeStateChanger() // <--
 
+    private val backPressedCallback = object: OnBackPressedCallback(true) { // this is the only way to make Compose BackHandler work reliably
+        override fun handleOnBackPressed() {
+            if (!Navigator.onBackPressed(this@MainActivity)) {
+                this.remove()
+                onBackPressed()
+                this@MainActivity.onBackPressedDispatcher.addCallback(this)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(backPressedCallback) // this is the only way to make Compose BackHandler work reliably
 
         val backstack = Navigator.configure()
             .setStateChanger(AsyncStateChanger(composeStateChanger))  // <--
@@ -105,10 +117,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        if (!Navigator.onBackPressed(this)) {
-            super.onBackPressed()
-        }
+    @Suppress("RedundantModalityModifier")
+    override final fun onBackPressed() { // you cannot use `onBackPressed()` if you use `OnBackPressedDispatcher`
+        super.onBackPressed() // therefore this is needed to use Compose's BackHandler
     }
 }
 ```
