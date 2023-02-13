@@ -20,6 +20,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -34,16 +35,10 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
 import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.StateChange
@@ -115,17 +110,20 @@ class ComposeStateChanger(
         /**
          * The previous transition.
          */
-        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val previousComposableTransition: ComposableTransition =
-            ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
+            ComposableTransition { modifier, stateChange, animationProgress ->
                 modifier.then(
                     when (stateChange.direction) {
-                        StateChange.FORWARD -> Modifier.graphicsLayer {
-                            translationX = 0 + (-1) * fullWidth * animationProgress.value
+                        StateChange.FORWARD -> Modifier.drawWithContent {
+                            translate(left = 0 + (-1) * size.width * animationProgress.value) {
+                                this@drawWithContent.drawContent()
+                            }
                         }
 
-                        StateChange.BACKWARD -> Modifier.graphicsLayer {
-                            translationX = 0 + fullWidth * animationProgress.value
+                        StateChange.BACKWARD -> Modifier.drawWithContent {
+                            translate(left = 0 + size.width * animationProgress.value) {
+                                this@drawWithContent.drawContent()
+                            }
                         }
 
                         else /* REPLACE */ -> Modifier.graphicsLayer {
@@ -137,18 +135,23 @@ class ComposeStateChanger(
         /**
          * The new transition.
          */
-        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
         val newComposableTransition: ComposableTransition =
-            ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
+            ComposableTransition { modifier, stateChange, animationProgress ->
                 modifier.then(
                     when (stateChange.direction) {
-                        StateChange.FORWARD -> Modifier.graphicsLayer {
-                            translationX = fullWidth + (-1) * fullWidth * animationProgress.value
+                        StateChange.FORWARD -> Modifier.drawWithContent {
+                            translate(left = size.width + (-1) * size.width * animationProgress.value) {
+                                this@drawWithContent.drawContent()
+                            }
                         }
-                        StateChange.BACKWARD -> Modifier.graphicsLayer {
-                            translationX = -1 * fullWidth + fullWidth * animationProgress.value
+
+                        StateChange.BACKWARD -> Modifier.drawWithContent {
+                            translate(left = -1 * size.width + size.width * animationProgress.value) {
+                                this@drawWithContent.drawContent()
+                            }
                         }
-                        else /* REPLACE */ -> Modifier.graphicsLayer{
+
+                        else /* REPLACE */ -> Modifier.graphicsLayer {
                             alpha = 0 + animationProgress.value
                         }
                     }
@@ -179,8 +182,6 @@ class ComposeStateChanger(
             fun animateComposable(
                 modifier: Modifier,
                 stateChange: StateChange,
-                fullWidth: Int,
-                fullHeight: Int,
                 animationProgress: State<Float>
             ): Modifier
         }
@@ -234,14 +235,11 @@ class ComposeStateChanger(
         val saveableStateHolder = rememberSaveableStateHolder()
         CleanupStaleSavedStates(saveableStateHolder)
 
-        val measurePolicy = remember { SizeSavingMeasurePolicy() }
-        Layout({
+        Box {
             for (displayedKey in displayedKeys.value) {
                 val animationModifier = displayedKey.transition?.animateComposable(
                     modifier,
                     currentStateChange.stateChange,
-                    measurePolicy.fullWidth,
-                    measurePolicy.fullHeight,
                     displayedKey.animationProgress
                 ) ?: modifier
 
@@ -258,7 +256,7 @@ class ComposeStateChanger(
                 }
 
             }
-        }, Modifier, measurePolicy)
+        }
     }
 
     @Composable
@@ -324,35 +322,6 @@ class ComposeStateChanger(
             }
         }
     }
-}
-
-private class SizeSavingMeasurePolicy : MeasurePolicy {
-    var fullWidth by mutableStateOf(0)
-    var fullHeight by mutableStateOf(0)
-
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeables = measurables.fastMap { it.measure(constraints) }
-        val maxWidth = placeables.fastMaxBy { it.width }?.width ?: 0
-        val maxHeight = placeables.fastMaxBy { it.height }?.height ?: 0
-
-        if (fullWidth == 0 && maxWidth != 0) {
-            fullWidth = maxWidth
-        }
-
-        if (fullHeight == 0 && maxHeight != 0) {
-            fullHeight = maxHeight
-        }
-
-        return layout(maxWidth, maxHeight) {
-            placeables.fastForEach { placeable ->
-                placeable.place(0, 0)
-            }
-        }
-    }
-
 }
 
 /**
