@@ -120,9 +120,17 @@ class ComposeStateChanger(
             ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
                 modifier.then(
                     when (stateChange.direction) {
-                        StateChange.FORWARD -> Modifier.graphicsLayer(translationX = 0 + (-1) * fullWidth * animationProgress)
-                        StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = 0 + fullWidth * animationProgress)
-                        else /* REPLACE */ -> Modifier.graphicsLayer(alpha = (1 - animationProgress))
+                        StateChange.FORWARD -> Modifier.graphicsLayer {
+                            translationX = 0 + (-1) * fullWidth * animationProgress.value
+                        }
+
+                        StateChange.BACKWARD -> Modifier.graphicsLayer {
+                            translationX = 0 + fullWidth * animationProgress.value
+                        }
+
+                        else /* REPLACE */ -> Modifier.graphicsLayer {
+                            alpha = (1 - animationProgress.value)
+                        }
                     }
                 )
             },
@@ -134,9 +142,15 @@ class ComposeStateChanger(
             ComposableTransition { modifier, stateChange, fullWidth, fullHeight, animationProgress ->
                 modifier.then(
                     when (stateChange.direction) {
-                        StateChange.FORWARD -> Modifier.graphicsLayer(translationX = fullWidth + (-1) * fullWidth * animationProgress)
-                        StateChange.BACKWARD -> Modifier.graphicsLayer(translationX = -1 * fullWidth + fullWidth * animationProgress)
-                        else /* REPLACE */ -> Modifier.graphicsLayer(alpha = 0 + animationProgress)
+                        StateChange.FORWARD -> Modifier.graphicsLayer {
+                            translationX = fullWidth + (-1) * fullWidth * animationProgress.value
+                        }
+                        StateChange.BACKWARD -> Modifier.graphicsLayer {
+                            translationX = -1 * fullWidth + fullWidth * animationProgress.value
+                        }
+                        else /* REPLACE */ -> Modifier.graphicsLayer{
+                            alpha = 0 + animationProgress.value
+                        }
                     }
                 )
             },
@@ -150,7 +164,7 @@ class ComposeStateChanger(
         /**
          * An optional composable content wrapper.
          */
-        val contentWrapper: ComposableContentWrapper = object: ComposableContentWrapper {
+        val contentWrapper: ComposableContentWrapper = object : ComposableContentWrapper {
             @Composable
             override fun ContentWrapper(stateChange: StateChange, block: @Composable() () -> Unit) {
                 block()
@@ -162,7 +176,13 @@ class ComposeStateChanger(
          */
         fun interface ComposableTransition {
             @SuppressLint("ModifierFactoryExtensionFunction")
-            fun animateComposable(modifier: Modifier, stateChange: StateChange, fullWidth: Int, fullHeight: Int, animationProgress: Float): Modifier
+            fun animateComposable(
+                modifier: Modifier,
+                stateChange: StateChange,
+                fullWidth: Int,
+                fullHeight: Int,
+                animationProgress: State<Float>
+            ): Modifier
         }
 
         /**
@@ -222,7 +242,7 @@ class ComposeStateChanger(
                     currentStateChange.stateChange,
                     measurePolicy.fullWidth,
                     measurePolicy.fullHeight,
-                    displayedKey.animationProgress.value
+                    displayedKey.animationProgress
                 ) ?: modifier
 
                 val key = displayedKey.key
