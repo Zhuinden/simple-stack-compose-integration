@@ -45,6 +45,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.StateChange
@@ -239,7 +240,8 @@ class ComposeStateChanger(
         currentStateChange: StateChangeData
     ) {
         val saveableStateHolder = rememberSaveableStateHolder()
-        CleanupStaleSavedStates(saveableStateHolder)
+        val viewModelStores = viewModel<StoreHolderViewModel>()
+        CleanupStaleSavedStates(saveableStateHolder, viewModelStores)
 
         Box {
             for (displayedKey in displayedKeys.value) {
@@ -253,11 +255,13 @@ class ComposeStateChanger(
 
                 key(key) {
                     saveableStateHolder.SaveableStateProvider(key) {
-                        LocalDestroyedLifecycle {
-                            animationConfiguration.contentWrapper.ContentWrapper(
-                                currentStateChange.stateChange
-                            ) {
-                                key.RenderComposable(animationModifier)
+                        viewModelStores.WithLocalViewModelStore(key) {
+                            LocalDestroyedLifecycle {
+                                animationConfiguration.contentWrapper.ContentWrapper(
+                                    currentStateChange.stateChange
+                                ) {
+                                    key.RenderComposable(animationModifier)
+                                }
                             }
                         }
                     }
@@ -318,7 +322,10 @@ class ComposeStateChanger(
     }
 
     @Composable
-    private fun CleanupStaleSavedStates(saveableStateHolder: SaveableStateHolder) {
+    private fun CleanupStaleSavedStates(
+        saveableStateHolder: SaveableStateHolder,
+        viewModelStores: StoreHolderViewModel
+    ) {
         LaunchedEffect(currentStateChange) {
             val stateChange = currentStateChange?.stateChange ?: return@LaunchedEffect
             val previousKeys = stateChange.getPreviousKeys<Any>()
@@ -326,6 +333,7 @@ class ComposeStateChanger(
             previousKeys.fastForEach { previousKey ->
                 if (!newKeys.contains(previousKey)) {
                     saveableStateHolder.removeState(previousKey)
+                    viewModelStores.removeKey(previousKey)
                 }
             }
         }
