@@ -23,6 +23,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -38,7 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.StateChange
@@ -233,7 +240,8 @@ class ComposeStateChanger(
         currentStateChange: StateChangeData
     ) {
         val saveableStateHolder = rememberSaveableStateHolder()
-        CleanupStaleSavedStates(saveableStateHolder)
+        val viewModelStores = viewModel<StoreHolderViewModel>()
+        CleanupStaleSavedStates(saveableStateHolder, viewModelStores)
 
         Box {
             for (displayedKey in displayedKeys.value) {
@@ -247,10 +255,14 @@ class ComposeStateChanger(
 
                 key(key) {
                     saveableStateHolder.SaveableStateProvider(key) {
-                        animationConfiguration.contentWrapper.ContentWrapper(
-                            currentStateChange.stateChange
-                        ) {
-                            key.RenderComposable(animationModifier)
+                        viewModelStores.WithLocalViewModelStore(key) {
+                            LocalDestroyedLifecycle {
+                                animationConfiguration.contentWrapper.ContentWrapper(
+                                    currentStateChange.stateChange
+                                ) {
+                                    key.RenderComposable(animationModifier)
+                                }
+                            }
                         }
                     }
                 }
@@ -310,7 +322,10 @@ class ComposeStateChanger(
     }
 
     @Composable
-    private fun CleanupStaleSavedStates(saveableStateHolder: SaveableStateHolder) {
+    private fun CleanupStaleSavedStates(
+        saveableStateHolder: SaveableStateHolder,
+        viewModelStores: StoreHolderViewModel
+    ) {
         LaunchedEffect(currentStateChange) {
             val stateChange = currentStateChange?.stateChange ?: return@LaunchedEffect
             val previousKeys = stateChange.getPreviousKeys<Any>()
@@ -318,8 +333,48 @@ class ComposeStateChanger(
             previousKeys.fastForEach { previousKey ->
                 if (!newKeys.contains(previousKey)) {
                     saveableStateHolder.removeState(previousKey)
+                    viewModelStores.removeKey(previousKey)
                 }
             }
+        }
+    }
+
+    /**
+     * Wrapper that puts provided [child] into local lifecycle. Whenever this child is removed from
+     * composition, its [LocalLifecycleOwner] will also get destroyed.
+     */
+    @Composable
+    private fun LocalDestroyedLifecycle(child: @Composable () -> Unit) {
+        val childLifecycleOwner = remember {
+            object : LifecycleOwner {
+                val lifecycle = LifecycleRegistry(this)
+                override fun getLifecycle(): Lifecycle {
+                    return lifecycle
+                }
+            }
+        }
+
+        val childLifecycle = childLifecycleOwner.lifecycle
+        val parentLifecycle = LocalLifecycleOwner.current.lifecycle
+
+        DisposableEffect(parentLifecycle) {
+            val parentListener = LifecycleEventObserver { _, event ->
+                childLifecycle.handleLifecycleEvent(event)
+            }
+
+            parentLifecycle.addObserver(parentListener)
+
+            onDispose {
+                parentLifecycle.removeObserver(parentListener)
+
+                if (childLifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) {
+                    childLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                }
+            }
+        }
+
+        CompositionLocalProvider(LocalLifecycleOwner provides childLifecycleOwner) {
+            child()
         }
     }
 }
