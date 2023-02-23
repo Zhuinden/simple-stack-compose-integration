@@ -21,20 +21,9 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.translate
@@ -69,15 +58,17 @@ abstract class DefaultComposeKey {
      * The screen rendering call.
      */
     @Composable
-    fun RenderComposable(modifier: Modifier = Modifier) {
+    fun RenderComposable() {
         val key = this
 
         CompositionLocalProvider(LocalComposeKey provides (key)) {
             key(key) {
-                ScreenComposable(modifier = modifier)
+                ScreenComposable(modifier)
             }
         }
     }
+
+    open val modifier: Modifier = Modifier
 
     /**
      * The key used for the SaveableStateProvider.
@@ -259,7 +250,7 @@ class ComposeStateChanger(
                                 animationConfiguration.contentWrapper.ContentWrapper(
                                     currentStateChange.stateChange
                                 ) {
-                                    key.RenderComposable(Modifier)
+                                    key.RenderComposable()
                                 }
                             }
                         }
