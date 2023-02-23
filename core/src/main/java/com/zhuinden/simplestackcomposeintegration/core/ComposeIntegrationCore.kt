@@ -243,24 +243,23 @@ class ComposeStateChanger(
         val viewModelStores = viewModel<StoreHolderViewModel>()
         CleanupStaleSavedStates(saveableStateHolder, viewModelStores)
 
-        Box {
-            for (displayedKey in displayedKeys.value) {
+        for (displayedKey in displayedKeys.value) {
+            val key = displayedKey.key
+            key(key) {
                 val animationModifier = displayedKey.transition?.animateComposable(
                     modifier,
                     currentStateChange.stateChange,
                     displayedKey.animationProgress
                 ) ?: modifier
 
-                val key = displayedKey.key
-
-                key(key) {
+                Box(animationModifier) {
                     saveableStateHolder.SaveableStateProvider(key) {
                         viewModelStores.WithLocalViewModelStore(key) {
                             LocalDestroyedLifecycle {
                                 animationConfiguration.contentWrapper.ContentWrapper(
                                     currentStateChange.stateChange
                                 ) {
-                                    key.RenderComposable(animationModifier)
+                                    key.RenderComposable(Modifier)
                                 }
                             }
                         }
