@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in Java")
     override final fun onBackPressed() {
         super.onBackPressed()
     }

@@ -50,14 +50,14 @@ and then, add the dependency to your module's `build.gradle.kts` (or `build.grad
 
 ``` kotlin
 // build.gradle.kts
-implementation("com.github.Zhuinden:simple-stack-compose-integration:0.9.5")
+implementation("com.github.Zhuinden:simple-stack-compose-integration:0.10.0")
 ```
 
 or
 
 ``` groovy
 // build.gradle
-implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.9.5'
+implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.10.0'
 ```
 
 As Compose requires Java-8 bytecode, you need to also add this:
@@ -69,13 +69,12 @@ compileOptions {
 }
 kotlinOptions {
     jvmTarget = '1.8'
-    useIR = true
 }
 buildFeatures {
     compose true
 }
 composeOptions {
-    kotlinCompilerExtensionVersion '1.1.1'
+    kotlinCompilerExtensionVersion '1.4.3'
 }
 ```
 
@@ -87,7 +86,7 @@ Provides defaults for Composable-driven navigation and animation support.
 class MainActivity : AppCompatActivity() {
     private val composeStateChanger = ComposeStateChanger() // <--
 
-    private val backPressedCallback = object: OnBackPressedCallback(true) { // this is the only way to make Compose BackHandler work reliably
+    private val backPressedCallback = object: OnBackPressedCallback(true) { // this is the only way to make Compose BackHandler work reliably for now
         override fun handleOnBackPressed() {
             if (!Navigator.onBackPressed(this@MainActivity)) {
                 this.remove()
@@ -100,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        onBackPressedDispatcher.addCallback(backPressedCallback) // this is the only way to make Compose BackHandler work reliably
+        onBackPressedDispatcher.addCallback(backPressedCallback) // this is the only way to make Compose BackHandler work reliably for now
 
         val backstack = Navigator.configure()
             .setStateChanger(AsyncStateChanger(composeStateChanger))  // <--
@@ -153,7 +152,7 @@ You can use `ScopedServices` for that.
 abstract class ComposeKey : DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
     override val saveableStateProviderKey: Any = this
 
-    override fun getScopeTag(): String = javaClass.name
+    override fun getScopeTag(): String = toString()
 
     override fun bindServices(serviceBinder: ServiceBinder) {
     }
@@ -193,7 +192,7 @@ data class DogListKey(private val noArgsPlaceholder: String = "") : ComposeKey()
 
 ## License
 
-    Copyright 2021 Gabor Varadi
+    Copyright 2021-2023 Gabor Varadi
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

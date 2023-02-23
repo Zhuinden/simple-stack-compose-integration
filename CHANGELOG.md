@@ -1,5 +1,29 @@
 # Change log
 
+-Simple Stack Compose Integration 0.10.0 (2023-02-23)
+--------------------------------
+
+- BREAKING CHANGE (recommended by @matejdro): `DefaultComposeKey.RenderComposable()` no longer receives a `Modifier`. This parameter was completely pointless, and a possible source of bugs.
+  
+- BREAKING CHANGE (recommended by @matejdro): The signature of `AnimationConfiguration` and specifically `ComposableTransition` has changed, and no longer receives `fullWidth` and `fullHeight`. This info can be accessed using `Modifier.drawWithContent {}` and is readily available. Also, `ComposableTransition` now receives `animationProgress` as a `State<Float>`, and not a `Float`. Using `Float` directly results in excessive recompositions during animation, and is bad for performance, therefore this value must be passed lazily. This is effectively a fix for a long-lasting design issue in how animation progress had been handled, created before recomposition-related best practices on deferred read were documented.
+  
+- CHANGE (required for new features): `core` now has an `api` dependency on `androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1` to support `LocalLifecycleOwner`/`LocalViewModelStoreOwner` per screen.
+
+- NEW FEATURE (added by @matejdro): `core` now supports creating a `LocalLifecycleOwner`/`LocalViewModelStoreOwner` per screen, this change is automatically applied by updating. Please note that this means from now on, AndroidX components scope themselves to the screen, and not the Activity. If you relied on the nearest `LocalViewModelStoreOwner` to be the `Activity`, then this is no longer the case (although in most cases, using Activity-scoped ViewModels for parameter passing typically results in stale state not being reset, and is a common source of bugs.)
+
+- NEW FEATURE: `DefaultComposeKey` now has a `open val modifier: Modifier = Modifier` which is passed to the `ScreenComposable`.
+
+- UPDATE: compileSdk 33.
+
+- UPDATE: simple-stack to 2.6.5, simple-stack-extensions 2.2.5.
+
+- UPDATE: Kotlin to 1.8.10.
+
+- UPDATE: Compose library versions to BOM 2023.01.00.
+- 
+- UPDATE: Compose Compiler to 1.4.3.
+
+
 -Simple Stack Compose Integration 0.9.5 (2022-04-21)
 --------------------------------
 

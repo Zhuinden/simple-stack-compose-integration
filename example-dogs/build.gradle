@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.zhuinden.simplestackcomposedogexample"
@@ -27,62 +27,59 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
-        useIR = true
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion '1.4.3'
     }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
     implementation(project(":core"))
     implementation(project(":services"))
 
-    def compose_version = "1.1.1"
+    implementation "androidx.compose.runtime:runtime:1.3.3"
+    implementation "androidx.compose.ui:ui:1.3.3"
+    implementation "androidx.compose.ui:ui-util:1.3.3"
+    implementation "androidx.compose.ui:ui-text:1.3.3"
+    implementation "androidx.compose.ui:ui-unit:1.3.3"
+    implementation "androidx.compose.ui:ui-geometry:1.3.3"
+    implementation "androidx.compose.foundation:foundation:1.3.1"
+    implementation "androidx.compose.foundation:foundation-layout:1.3.1"
+    implementation "androidx.compose.material:material:1.3.1"
+    implementation "androidx.compose.material:material-icons-extended:1.3.1"
+    implementation "androidx.compose.animation:animation:1.3.3"
+    implementation "androidx.compose.ui:ui-tooling:1.3.3"
 
-    implementation "androidx.compose.runtime:runtime:$compose_version"
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.ui:ui-util:$compose_version"
-    implementation "androidx.compose.ui:ui-text:$compose_version"
-    implementation "androidx.compose.ui:ui-unit:$compose_version"
-    implementation "androidx.compose.ui:ui-geometry:$compose_version"
-    implementation "androidx.compose.foundation:foundation-layout:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.compose.foundation:foundation:$compose_version"
-    implementation "androidx.compose.animation:animation:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation 'androidx.activity:activity-compose:1.6.1'
 
-    implementation 'androidx.activity:activity-compose:1.4.0'
-
-    implementation('com.github.Zhuinden:simple-stack:2.6.4') {
+    implementation('com.github.Zhuinden:simple-stack:2.6.5') {
         transitive = true
     }
-    implementation 'com.github.Zhuinden.simple-stack-extensions:core-ktx:2.2.4'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments:2.2.4'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments-ktx:2.2.4'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:navigator-ktx:2.2.4'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:services:2.2.4'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:services-ktx:2.2.4'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:core-ktx:2.2.5'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments:2.2.5'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments-ktx:2.2.5'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:navigator-ktx:2.2.5'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:services:2.2.5'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:services-ktx:2.2.5'
+    implementation 'com.google.code.gson:gson:2.9.1'
 
     implementation "io.coil-kt:coil-compose:1.3.1"
 
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
 
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation "io.reactivex.rxjava2:rxjava:2.2.21"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
 
-    implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
+    implementation "androidx.compose.runtime:runtime-rxjava2:1.3.3"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
