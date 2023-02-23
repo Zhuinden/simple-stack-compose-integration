@@ -71,6 +71,10 @@ task javadoc(type: Javadoc) {
     classpath += configurations.api
 }
 
+tasks.withType(Javadoc).all {
+    enabled = false
+}
+
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     archiveClassifier = "sources"
