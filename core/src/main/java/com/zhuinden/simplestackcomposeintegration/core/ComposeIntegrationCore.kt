@@ -68,6 +68,9 @@ abstract class DefaultComposeKey {
         }
     }
 
+    /**
+     * A modifier that can be used to alter the screen composable.
+     */
     open val modifier: Modifier = Modifier
 
     /**
