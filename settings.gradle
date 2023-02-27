@@ -1,3 +1,4 @@
+include ":example-nested-navigation"
 include ":example-simple"
 include ":example-dogs"
 include ":example-ftue"
