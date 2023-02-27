@@ -27,7 +27,7 @@ import com.zhuinden.statebundle.StateBundle
  * Create a [Backstack] for navigation and remember it across state changes and process kills.
  *
  * [stateChanger] wil not be remembered and will be re-initialized every time this composable
- * exits scope.
+ * exits scope. It MUST be remembered by the caller.
  *
  * [init] argument will only be called once (or after process kill). In that lambda, you have to
  * call [ComposeNavigatorInitializer.createBackstack] and return provided value.

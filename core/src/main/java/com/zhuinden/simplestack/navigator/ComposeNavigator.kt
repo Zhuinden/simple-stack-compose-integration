@@ -22,8 +22,9 @@ fun ComposeNavigator(
     init: ComposeNavigatorInitializer.() -> Backstack,
 ) {
     val composeStateChanger = remember { ComposeStateChanger(animationConfiguration) }
+    val asyncStateChanger = remember(composeStateChanger) { AsyncStateChanger(composeStateChanger)}
 
-    val backstack = rememberBackstack(AsyncStateChanger(composeStateChanger), init)
+    val backstack = rememberBackstack(asyncStateChanger, init)
 
     BackstackProvider(backstack) {
         composeStateChanger.RenderScreen(modifier)

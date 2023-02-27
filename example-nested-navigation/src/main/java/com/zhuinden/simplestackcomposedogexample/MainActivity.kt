@@ -25,8 +25,9 @@ class MainActivity : AppCompatActivity() {
             // This is an example of a longer, more customizable way to display a backstack
             // You can just use ComposeNavigator() in most cases, see SecondScreen().
             val composeStateChanger = remember { ComposeStateChanger() }
+            val asyncStateChanger = remember(composeStateChanger) { AsyncStateChanger(composeStateChanger)}
 
-            val backstack = rememberBackstack(AsyncStateChanger(composeStateChanger)) {
+            val backstack = rememberBackstack(asyncStateChanger) {
                 createBackstack(
                     scopedServices = DefaultServiceProvider(),
                     initialKeys = History.of(FirstKey())
