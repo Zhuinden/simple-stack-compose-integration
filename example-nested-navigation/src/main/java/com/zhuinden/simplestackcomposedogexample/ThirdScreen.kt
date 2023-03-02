@@ -43,7 +43,7 @@ fun ThirdScreen() {
                 .padding(bottom = 8.dp),
             propagateMinConstraints = true
         ) {
-            ComposeNavigator(id = "TOP") {
+            ComposeNavigator(id = "TOP", interceptBackButton = false) {
                 createBackstack(
                     History.of(FirstNestedKey()),
                     scopedServices = DefaultServiceProvider()
@@ -58,7 +58,7 @@ fun ThirdScreen() {
                 .padding(bottom = 8.dp),
             propagateMinConstraints = true
         ) {
-            ComposeNavigator(id = "BOTTOM") {
+            ComposeNavigator(id = "BOTTOM", interceptBackButton = false) {
                 createBackstack(
                     History.of(FirstNestedKey()),
                     scopedServices = DefaultServiceProvider()

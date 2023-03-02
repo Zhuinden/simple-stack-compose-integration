@@ -11,8 +11,8 @@ import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger
 /**
  * Create a Simple Stack navigator that will handle backstack and display screens.
  *
- * @see ComposeStateChanger for documentation on [animationConfiguration] and [id] arguments.
- * @see rememberBackstack for documentation on [init] argument.
+ * @see ComposeStateChanger for documentation on [animationConfiguration] argument.
+ * @see rememberBackstack for documentation on the rest of the arguments
  */
 @Composable
 fun ComposeNavigator(
@@ -20,12 +20,13 @@ fun ComposeNavigator(
     animationConfiguration: ComposeStateChanger.AnimationConfiguration =
         ComposeStateChanger.AnimationConfiguration(),
     id: String = "SINGLE",
+    interceptBackButton: Boolean = true,
     init: ComposeNavigatorInitializer.() -> Backstack,
 ) {
     val composeStateChanger = remember { ComposeStateChanger(animationConfiguration) }
     val asyncStateChanger = remember(composeStateChanger) { AsyncStateChanger(composeStateChanger) }
 
-    val backstack = rememberBackstack(asyncStateChanger, id, init)
+    val backstack = rememberBackstack(asyncStateChanger, id, interceptBackButton, init)
 
     BackstackProvider(backstack) {
         composeStateChanger.RenderScreen(modifier)

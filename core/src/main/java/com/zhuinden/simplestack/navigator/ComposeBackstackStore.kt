@@ -37,7 +37,9 @@ import com.zhuinden.statebundle.StateBundle
  * optional [id] argument allows you to have multiple backstacks inside single screen. To do that,
  * you have to provide unique ID to every distinct [rememberBackstack] call.
  *
- * Created backstack will automatically intercept all back button presses when necessary.
+ * Created backstack will automatically intercept all back button presses when necessary, if
+ * [interceptBackButton] flag is enabled. Otherwise it is up to the caller to manually call
+ * [Backstack.goBack].
  *
  * Note that backstack created with this method does NOT support [ScopedServices.HandlesBack].
  * Use fragment-based Navigator if you want this functionality.
@@ -47,6 +49,7 @@ import com.zhuinden.statebundle.StateBundle
 fun rememberBackstack(
     stateChanger: StateChanger,
     id: String = "SINGLE",
+    interceptBackButton: Boolean = true,
     init: ComposeNavigatorInitializer.() -> Backstack,
 ): Backstack {
     val viewModel = viewModel<BackstackHolderViewModel>()
@@ -54,7 +57,10 @@ fun rememberBackstack(
 
     SaveBackstackState(backstack)
     ListenToLifecycleEvents(backstack)
-    BackHandler(backstack)
+
+    if (interceptBackButton) {
+        BackHandler(backstack)
+    }
 
     remember(stateChanger) {
         // Attach state changer after init call to defer first navigation. That way,
