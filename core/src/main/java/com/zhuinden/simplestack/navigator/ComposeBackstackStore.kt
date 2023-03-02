@@ -34,6 +34,9 @@ import com.zhuinden.statebundle.StateBundle
  * Backstack will not perform any navigation until you return from that lambda,
  * so you can initialize your own services that require a [Backstack] instance, before you return.
  *
+ * optional [id] argument allows you to have multiple backstacks inside single screen. To do that,
+ * you have to provide unique ID to every distinct [rememberBackstack] call.
+ *
  * Created backstack will automatically intercept all back button presses when necessary.
  *
  * Note that backstack created with this method does NOT support [ScopedServices.HandlesBack].
@@ -41,69 +44,71 @@ import com.zhuinden.statebundle.StateBundle
  * See https://github.com/Zhuinden/simple-stack/issues/259 for more info.
  */
 @Composable
-fun rememberBackstack(stateChanger: StateChanger, init: ComposeNavigatorInitializer.() -> Backstack): Backstack {
+fun rememberBackstack(
+    stateChanger: StateChanger,
+    id: String = "SINGLE",
+    init: ComposeNavigatorInitializer.() -> Backstack,
+): Backstack {
     val viewModel = viewModel<BackstackHolderViewModel>()
-    if (!viewModel.isInitialized) {
-        init(viewModel)
-    }
+    val backstack = viewModel.getBackstack(id) ?: init(viewModel.createInitializer(id))
 
-    SaveBackstackState(viewModel)
-    ListenToLifecycleEvents(viewModel)
-    BackHandler(viewModel)
+    SaveBackstackState(backstack)
+    ListenToLifecycleEvents(backstack)
+    BackHandler(backstack)
 
     remember(stateChanger) {
         // Attach state changer after init call to defer first navigation. That way,
         // caller can use backstack to init their own things with Backstack instance
         // before navigation is performed.
-        viewModel.backstack.setStateChanger(stateChanger)
+        backstack.setStateChanger(stateChanger)
         true
     }
 
-    return viewModel.backstack
+    return backstack
 }
 
 @Composable
-private fun BackHandler(viewModel: BackstackHolderViewModel) {
-    val history by viewModel.backstack.historyAsState()
+private fun BackHandler(backstack: Backstack) {
+    val history by backstack.historyAsState()
 
     BackHandler(enabled = history.size > 1) {
-        viewModel.backstack.goBack()
+        backstack.goBack()
     }
 }
 
 @Composable
-private fun SaveBackstackState(viewModel: BackstackHolderViewModel) {
+private fun SaveBackstackState(backstack: Backstack) {
     val stateSavingRegistry = LocalSaveableStateRegistry.current
 
-    remember(viewModel) {
+    remember(backstack) {
         if (stateSavingRegistry == null) {
             return@remember true
         }
 
         val oldState = stateSavingRegistry.consumeRestored(STATE_SAVING_KEY) as StateBundle?
         oldState?.let {
-            viewModel.backstack.fromBundle(it)
+            backstack.fromBundle(it)
         }
 
         stateSavingRegistry.registerProvider(STATE_SAVING_KEY) {
-            viewModel.backstack.toBundle()
+            backstack.toBundle()
         }
     }
 }
 
 @Composable
-private fun ListenToLifecycleEvents(viewModel: BackstackHolderViewModel) {
+private fun ListenToLifecycleEvents(backstack: Backstack) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     DisposableEffect(lifecycle) {
         val lifecycleListener = LifecycleEventObserver { _, event ->
             val isResumed = event.targetState.isAtLeast(Lifecycle.State.RESUMED)
-            val isStateChangerAlreadyAttached = viewModel.backstack.hasStateChanger()
+            val isStateChangerAlreadyAttached = backstack.hasStateChanger()
             if (isResumed != isStateChangerAlreadyAttached) {
                 if (isResumed) {
-                    viewModel.backstack.reattachStateChanger()
+                    backstack.reattachStateChanger()
                 } else {
-                    viewModel.backstack.detachStateChanger()
+                    backstack.detachStateChanger()
                 }
             }
         }
@@ -112,8 +117,8 @@ private fun ListenToLifecycleEvents(viewModel: BackstackHolderViewModel) {
 
         onDispose {
             lifecycle.removeObserver(lifecycleListener)
-            viewModel.backstack.executePendingStateChange()
-            viewModel.backstack.setStateChanger(null)
+            backstack.executePendingStateChange()
+            backstack.setStateChanger(null)
         }
     }
 }

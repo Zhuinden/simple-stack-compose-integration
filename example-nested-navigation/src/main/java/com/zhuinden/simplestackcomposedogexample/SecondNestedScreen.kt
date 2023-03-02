@@ -12,8 +12,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.zhuinden.simplestackcomposeintegration.core.LocalBackstack
 import kotlinx.parcelize.Parcelize
 
 
@@ -28,7 +28,7 @@ data class SecondNestedKey(private val noArgsPlaceholder: String = "") : Compose
 
 @Composable
 fun SecondNestedScreen(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+    val backstack = LocalBackstack.current
 
     Column(
         modifier = modifier.background(Color.Red).fillMaxSize(),
@@ -36,8 +36,7 @@ fun SecondNestedScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
-            // onClick is not a composition context, must get ambients above
-            context.showToast("Blah")
+            backstack.goBack()
         }, content = {
             Text("Hello Second Nested Screen!")
         })
