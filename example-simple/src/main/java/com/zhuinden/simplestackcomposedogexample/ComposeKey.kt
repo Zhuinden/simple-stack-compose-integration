@@ -12,4 +12,6 @@ abstract class ComposeKey: DefaultComposeKey(), Parcelable, DefaultServiceProvid
 
     override fun bindServices(serviceBinder: ServiceBinder) {
     }
+
+    abstract override fun hashCode(): Int
 }
