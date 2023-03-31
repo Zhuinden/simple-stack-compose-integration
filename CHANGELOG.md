@@ -1,6 +1,6 @@
 # Change log
 
--Simple Stack Compose Integration 0.11.0 (2023-02-23)
+-Simple Stack Compose Integration 0.11.0 (2023-03-31)
 --------------------------------
 
 - UPDATE: simple-stack to 2.7.0, simple-stack-extensions 2.3.0.
