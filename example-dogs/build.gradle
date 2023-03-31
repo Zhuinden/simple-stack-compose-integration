@@ -60,7 +60,7 @@ dependencies {
 
     implementation 'androidx.activity:activity-compose:1.6.1'
 
-    implementation('com.github.Zhuinden:simple-stack:2.6.5') {
+    implementation('com.github.Zhuinden:simple-stack:2.7.0') {
         transitive = true
     }
     implementation 'com.github.Zhuinden.simple-stack-extensions:core-ktx:2.3.0'
