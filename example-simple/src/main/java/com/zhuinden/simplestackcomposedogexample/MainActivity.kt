@@ -10,24 +10,24 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.zhuinden.simplestack.AsyncStateChanger
+import com.zhuinden.simplestack.BackHandlingModel
+import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.History
 import com.zhuinden.simplestack.navigator.Navigator
 import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
 import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger
+import com.zhuinden.simplestackextensions.lifecyclektx.observeAheadOfTimeWillHandleBackChanged
 import com.zhuinden.simplestackextensions.navigatorktx.androidContentFrame
 import com.zhuinden.simplestackextensions.services.DefaultServiceProvider
 
 class MainActivity : AppCompatActivity() {
     private val composeStateChanger = ComposeStateChanger()
 
+    private lateinit var backstack: Backstack
 
-    private val backPressedCallback = object: OnBackPressedCallback(true) {
+    private val backPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            if (!Navigator.onBackPressed(this@MainActivity)) {
-                this.remove() // this is the only safe way to invoke onBackPressed while cancelling the execution of this callback
-                onBackPressed() // this is the only safe way to invoke onBackPressed while cancelling the execution of this callback
-                this@MainActivity.onBackPressedDispatcher.addCallback(this) // this is the only safe way to invoke onBackPressed while cancelling the execution of this callback
-            }
+            backstack.goBack()
         }
     }
 
@@ -36,10 +36,17 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(backPressedCallback)
 
-        val backstack = Navigator.configure()
+        backstack = Navigator.configure()
+            .setBackHandlingModel(BackHandlingModel.AHEAD_OF_TIME)
             .setScopedServices(DefaultServiceProvider())
             .setStateChanger(AsyncStateChanger(composeStateChanger))
             .install(this, androidContentFrame, History.of(FirstKey()))
+
+        backPressedCallback.isEnabled = backstack.willHandleAheadOfTimeBack()
+
+        backstack.observeAheadOfTimeWillHandleBackChanged(this) {
+            backPressedCallback.isEnabled = it
+        }
 
         setContent {
             BackstackProvider(backstack) {
@@ -50,11 +57,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Deprecated in Java")
-    override final fun onBackPressed() {
-        super.onBackPressed()
     }
 }
