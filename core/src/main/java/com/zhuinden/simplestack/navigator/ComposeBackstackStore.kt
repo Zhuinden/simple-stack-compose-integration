@@ -4,12 +4,16 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.zhuinden.simplestack.AheadOfTimeWillHandleBackChangedListener
+import com.zhuinden.simplestack.BackHandlingModel
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.Backstack.StateClearStrategy
 import com.zhuinden.simplestack.DefaultKeyFilter
@@ -20,7 +24,6 @@ import com.zhuinden.simplestack.KeyFilter
 import com.zhuinden.simplestack.KeyParceler
 import com.zhuinden.simplestack.ScopedServices
 import com.zhuinden.simplestack.StateChanger
-import com.zhuinden.simplestackcomposeintegration.util.historyAsState
 import com.zhuinden.statebundle.StateBundle
 
 /**
@@ -41,9 +44,8 @@ import com.zhuinden.statebundle.StateBundle
  * [interceptBackButton] flag is enabled. Otherwise it is up to the caller to manually call
  * [Backstack.goBack].
  *
- * Note that backstack created with this method does NOT support [ScopedServices.HandlesBack].
- * Use fragment-based Navigator if you want this functionality.
- * See https://github.com/Zhuinden/simple-stack/issues/259 for more info.
+ * Note that backstack created with this method
+ * uses [BackHandlingModel.AHEAD_OF_TIME] back handling model.
  */
 @Composable
 fun rememberBackstack(
@@ -75,9 +77,21 @@ fun rememberBackstack(
 
 @Composable
 private fun BackHandler(backstack: Backstack) {
-    val history by backstack.historyAsState()
+    var backButtonEnabled by remember { mutableStateOf(false) }
 
-    BackHandler(enabled = history.size > 1) {
+    DisposableEffect(backstack) {
+        val listener = AheadOfTimeWillHandleBackChangedListener {
+            backButtonEnabled = it
+        }
+
+        backstack.addAheadOfTimeWillHandleBackChangedListener(listener)
+
+        onDispose {
+            backstack.removeAheadOfTimeWillHandleBackChangedListener(listener)
+        }
+    }
+
+    BackHandler(enabled = backButtonEnabled) {
         backstack.goBack()
     }
 }

@@ -1,6 +1,7 @@
 package com.zhuinden.simplestack.navigator
 
 import androidx.lifecycle.ViewModel
+import com.zhuinden.simplestack.BackHandlingModel
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.GlobalServices
 import com.zhuinden.simplestack.KeyFilter
@@ -26,6 +27,7 @@ internal class BackstackHolderViewModel : ViewModel() {
         ): Backstack {
             val backstack = Backstack()
 
+            backstack.setBackHandlingModel(BackHandlingModel.AHEAD_OF_TIME)
             backstack.setKeyFilter(keyFilter)
             backstack.setKeyParceler(keyParceler)
             backstack.setStateClearStrategy(stateClearStrategy)
