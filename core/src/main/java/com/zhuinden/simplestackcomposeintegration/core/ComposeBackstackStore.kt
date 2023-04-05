@@ -69,6 +69,8 @@ private fun BackHandler(backstack: Backstack) {
             backButtonEnabled = it
         }
 
+
+        backButtonEnabled = backstack.willHandleAheadOfTimeBack()
         backstack.addAheadOfTimeWillHandleBackChangedListener(listener)
 
         onDispose {
