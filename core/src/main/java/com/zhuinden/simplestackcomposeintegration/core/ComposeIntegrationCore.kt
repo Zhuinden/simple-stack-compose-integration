@@ -221,21 +221,33 @@ class ComposeStateChanger(
         val currentStateChange = currentStateChange ?: return
 
         val displayedKeys = remember { mutableStateOf(emptyList<DisplayedKey>()) }
+        val saveableStateHolder = rememberSaveableStateHolder()
+        val viewModelStores = viewModel<StoreHolderViewModel>()
 
-        DetermineDisplayedScreens(currentStateChange, displayedKeys)
+        DetermineDisplayedScreens(
+            currentStateChange,
+            displayedKeys,
+            saveableStateHolder,
+            viewModelStores
+        )
 
-        DisplayScreens(displayedKeys, modifier, currentStateChange)
+        DisplayScreens(
+            displayedKeys,
+            modifier,
+            currentStateChange,
+            saveableStateHolder,
+            viewModelStores
+        )
     }
 
     @Composable
     private fun DisplayScreens(
         displayedKeys: State<List<DisplayedKey>>,
         modifier: Modifier,
-        currentStateChange: StateChangeData
+        currentStateChange: StateChangeData,
+        saveableStateHolder: SaveableStateHolder,
+        viewModelStores: StoreHolderViewModel
     ) {
-        val saveableStateHolder = rememberSaveableStateHolder()
-        val viewModelStores = viewModel<StoreHolderViewModel>()
-        CleanupStaleSavedStates(saveableStateHolder, viewModelStores)
 
         for (displayedKey in displayedKeys.value) {
             val key = displayedKey.key
@@ -267,7 +279,9 @@ class ComposeStateChanger(
     @Composable
     private fun DetermineDisplayedScreens(
         currentStateChange: StateChangeData,
-        displayedKeys: MutableState<List<DisplayedKey>>
+        displayedKeys: MutableState<List<DisplayedKey>>,
+        saveableStateHolder: SaveableStateHolder,
+        viewModelStores: StoreHolderViewModel
     ) {
         LaunchedEffect(currentStateChange) {
             val topNewKey = currentStateChange.stateChange.topNewKey<DefaultComposeKey>()
@@ -310,24 +324,24 @@ class ComposeStateChanger(
             displayedKeys.value = listOf(
                 DisplayedKey(topNewKey, null, mutableStateOf(0f))
             )
+
             currentStateChange.completionCallback.stateChangeComplete()
+            cleanupStaleSaveStates(currentStateChange, saveableStateHolder, viewModelStores)
         }
     }
 
-    @Composable
-    private fun CleanupStaleSavedStates(
+    private fun cleanupStaleSaveStates(
+        currentStateChange: StateChangeData,
         saveableStateHolder: SaveableStateHolder,
         viewModelStores: StoreHolderViewModel
     ) {
-        LaunchedEffect(currentStateChange) {
-            val stateChange = currentStateChange?.stateChange ?: return@LaunchedEffect
-            val previousKeys = stateChange.getPreviousKeys<Any>()
-            val newKeys = stateChange.getNewKeys<Any>()
-            previousKeys.fastForEach { previousKey ->
-                if (!newKeys.contains(previousKey)) {
-                    saveableStateHolder.removeState(previousKey)
-                    viewModelStores.removeKey(previousKey)
-                }
+        val stateChange = currentStateChange.stateChange
+        val previousKeys = stateChange.getPreviousKeys<Any>()
+        val newKeys = stateChange.getNewKeys<Any>()
+        previousKeys.fastForEach { previousKey ->
+            if (!newKeys.contains(previousKey)) {
+                saveableStateHolder.removeState(previousKey)
+                viewModelStores.removeKey(previousKey)
             }
         }
     }
