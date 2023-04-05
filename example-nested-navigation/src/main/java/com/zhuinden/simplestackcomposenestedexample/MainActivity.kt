@@ -1,4 +1,4 @@
-package com.zhuinden.simplestackcomposesimpleexample
+package com.zhuinden.simplestackcomposenestedexample
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -11,9 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.History
-import com.zhuinden.simplestack.navigator.rememberBackstack
 import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
 import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger
+import com.zhuinden.simplestackcomposeintegration.core.rememberBackstack
 import com.zhuinden.simplestackextensions.services.DefaultServiceProvider
 
 class MainActivity : AppCompatActivity() {

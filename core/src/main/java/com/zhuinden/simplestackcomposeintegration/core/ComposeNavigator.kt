@@ -1,12 +1,10 @@
-package com.zhuinden.simplestack.navigator
+package com.zhuinden.simplestackcomposeintegration.core
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.zhuinden.simplestack.AsyncStateChanger
 import com.zhuinden.simplestack.Backstack
-import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
-import com.zhuinden.simplestackcomposeintegration.core.ComposeStateChanger
 
 /**
  * Create a Simple Stack navigator that will handle backstack and display screens.
@@ -19,7 +17,7 @@ fun ComposeNavigator(
     modifier: Modifier = Modifier,
     animationConfiguration: ComposeStateChanger.AnimationConfiguration =
         ComposeStateChanger.AnimationConfiguration(),
-    id: String = "SINGLE",
+    id: String = "DEFAULT_SINGLE_COMPOSE_STACK_IDENTIFIER",
     interceptBackButton: Boolean = true,
     init: ComposeNavigatorInitializer.() -> Backstack,
 ) {

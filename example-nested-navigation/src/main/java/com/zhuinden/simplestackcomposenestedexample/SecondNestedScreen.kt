@@ -1,4 +1,4 @@
-package com.zhuinden.simplestackcomposesimpleexample
+package com.zhuinden.simplestackcomposenestedexample
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.zhuinden.simplestack.Backstack
+import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
 import com.zhuinden.simplestackcomposeintegration.core.LocalBackstack
 import kotlinx.parcelize.Parcelize
 
@@ -31,14 +33,16 @@ fun SecondNestedScreen(modifier: Modifier = Modifier) {
     val backstack = LocalBackstack.current
 
     Column(
-        modifier = modifier.background(Color.Red).fillMaxSize(),
+        modifier = modifier
+            .background(Color(0xFF, 0x80, 0x80))
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
             backstack.goBack()
         }, content = {
-            Text("Hello Second Nested Screen!")
+            Text("Welcome to Second Nested Screen!")
         })
     }
 }
@@ -47,6 +51,8 @@ fun SecondNestedScreen(modifier: Modifier = Modifier) {
 @Composable
 fun SecondNestedScreenPreview() {
     MaterialTheme {
-        SecondNestedScreen()
+        BackstackProvider(backstack = Backstack()) {
+            SecondNestedScreen()
+        }
     }
 }

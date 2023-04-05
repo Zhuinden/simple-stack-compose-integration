@@ -1,12 +1,7 @@
-package com.zhuinden.simplestack.navigator
+package com.zhuinden.simplestackcomposeintegration.core
 
 import androidx.lifecycle.ViewModel
-import com.zhuinden.simplestack.BackHandlingModel
-import com.zhuinden.simplestack.Backstack
-import com.zhuinden.simplestack.GlobalServices
-import com.zhuinden.simplestack.KeyFilter
-import com.zhuinden.simplestack.KeyParceler
-import com.zhuinden.simplestack.ScopedServices
+import com.zhuinden.simplestack.*
 
 internal class BackstackHolderViewModel : ViewModel() {
     private val backstacks = HashMap<String, Backstack>()

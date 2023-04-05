@@ -1,4 +1,4 @@
-package com.zhuinden.simplestackcomposesimpleexample
+package com.zhuinden.simplestackcomposenestedexample
 
 import android.os.Parcelable
 import com.zhuinden.simplestack.ServiceBinder

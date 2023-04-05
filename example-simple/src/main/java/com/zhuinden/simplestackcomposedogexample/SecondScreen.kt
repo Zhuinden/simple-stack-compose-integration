@@ -33,12 +33,15 @@ fun SecondScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = {
-            // onClick is not a composition context, must get ambients above
-            context.showToast("Blah")
-        }, content = {
-            Text("Hello Second Screen!")
-        })
+        Button(
+            onClick = {
+                // onClick is not a composition context, must get ambients above
+                context.showToast("Blah")
+            },
+            content = {
+                Text("Go to Second Screen!")
+            },
+        )
     }
 }
 

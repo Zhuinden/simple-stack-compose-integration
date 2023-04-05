@@ -1,4 +1,4 @@
-package com.zhuinden.simplestackcomposesimpleexample
+package com.zhuinden.simplestackcomposenestedexample
 
 import android.content.Context
 import android.widget.Toast

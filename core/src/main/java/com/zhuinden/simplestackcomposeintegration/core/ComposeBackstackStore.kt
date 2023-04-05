@@ -1,29 +1,14 @@
-package com.zhuinden.simplestack.navigator
+package com.zhuinden.simplestackcomposeintegration.core
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.zhuinden.simplestack.AheadOfTimeWillHandleBackChangedListener
-import com.zhuinden.simplestack.BackHandlingModel
-import com.zhuinden.simplestack.Backstack
+import com.zhuinden.simplestack.*
 import com.zhuinden.simplestack.Backstack.StateClearStrategy
-import com.zhuinden.simplestack.DefaultKeyFilter
-import com.zhuinden.simplestack.DefaultKeyParceler
-import com.zhuinden.simplestack.DefaultStateClearStrategy
-import com.zhuinden.simplestack.GlobalServices
-import com.zhuinden.simplestack.KeyFilter
-import com.zhuinden.simplestack.KeyParceler
-import com.zhuinden.simplestack.ScopedServices
-import com.zhuinden.simplestack.StateChanger
 import com.zhuinden.statebundle.StateBundle
 
 /**
@@ -50,7 +35,7 @@ import com.zhuinden.statebundle.StateBundle
 @Composable
 fun rememberBackstack(
     stateChanger: StateChanger,
-    id: String = "SINGLE",
+    id: String = "DEFAULT_SINGLE_COMPOSE_STACK_IDENTIFIER",
     interceptBackButton: Boolean = true,
     init: ComposeNavigatorInitializer.() -> Backstack,
 ): Backstack {

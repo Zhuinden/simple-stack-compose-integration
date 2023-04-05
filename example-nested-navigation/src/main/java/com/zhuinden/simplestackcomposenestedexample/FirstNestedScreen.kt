@@ -1,6 +1,7 @@
-package com.zhuinden.simplestackcomposesimpleexample
+package com.zhuinden.simplestackcomposenestedexample
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,43 +12,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.ServiceBinder
+import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
 import com.zhuinden.simplestackcomposeintegration.services.rememberService
 import com.zhuinden.simplestackextensions.servicesktx.add
 import com.zhuinden.simplestackextensions.servicesktx.rebind
 import kotlinx.parcelize.Parcelize
 
-class FirstModel(
+class FirstNestedModel(
     private val backstack: Backstack
-): FirstScreen.ActionHandler {
+): FirstNestedScreen.ActionHandler {
     override fun navigateToSecond() {
-        backstack.goTo(SecondKey())
+        backstack.goTo(SecondNestedKey())
     }
 }
 
 @Immutable
 @Parcelize
-data class FirstKey(val title: String) : ComposeKey() {
-    constructor() : this("Hello First Screen!")
+data class FirstNestedKey(val title: String) : ComposeKey() {
+    constructor() : this("Hello First Nested Screen!")
 
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
-        FirstScreen(title, modifier)
+        FirstNestedScreen(title, modifier)
     }
 
     override fun bindServices(serviceBinder: ServiceBinder) {
         with(serviceBinder) {
-            val firstModel = FirstModel(backstack)
+            val firstModel = FirstNestedModel(backstack)
 
             add(firstModel)
-            rebind<FirstScreen.ActionHandler>(firstModel)
+            rebind<FirstNestedScreen.ActionHandler>(firstModel)
         }
     }
 }
 
-class FirstScreen private constructor() {
+class FirstNestedScreen private constructor() {
     fun interface ActionHandler {
         fun navigateToSecond()
     }
@@ -59,7 +62,9 @@ class FirstScreen private constructor() {
             val eventHandler = rememberService<ActionHandler>()
 
             Column(
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier
+                    .background(Color(0x80, 0x80, 0xFF))
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -76,8 +81,10 @@ class FirstScreen private constructor() {
 
 @Preview
 @Composable
-fun FirstScreenPreview() {
-    MaterialTheme {
-        FirstScreen("This is a preview")
+fun FirstNestedScreenPreview() {
+    BackstackProvider(backstack = Backstack()) {
+        MaterialTheme {
+            FirstNestedScreen("This is a preview")
+        }
     }
 }

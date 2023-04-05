@@ -1,11 +1,7 @@
-package com.zhuinden.simplestackcomposeintegration.util
+package com.zhuinden.simplestackcomposeintegration.core.util
 
 import android.annotation.SuppressLint
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.History
 

@@ -1,19 +1,19 @@
-package com.zhuinden.simplestackcomposesimpleexample
+package com.zhuinden.simplestackcomposenestedexample
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.zhuinden.simplestack.Backstack
 import com.zhuinden.simplestack.History
-import com.zhuinden.simplestack.navigator.ComposeNavigator
+import com.zhuinden.simplestackcomposeintegration.core.BackstackProvider
+import com.zhuinden.simplestackcomposeintegration.core.ComposeNavigator
 import com.zhuinden.simplestackcomposeintegration.core.LocalBackstack
 import com.zhuinden.simplestackextensions.services.DefaultServiceProvider
 import kotlinx.parcelize.Parcelize
@@ -34,7 +34,11 @@ fun ThirdScreen() {
     Column(
         Modifier.fillMaxSize()
     ) {
-        Text("Nested navigation twice:", Modifier.padding(bottom = 32.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(fontWeight = FontWeight.Bold, text = "Multiple nested stacks:")
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         Box(
             Modifier
@@ -67,11 +71,21 @@ fun ThirdScreen() {
         }
 
         Button(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = {
                 backstack.goBack()
-            }, content = {
+            },
+            content = {
                 Text("Go back (main)!")
-            }, modifier = Modifier.align(Alignment.CenterHorizontally)
+            },
         )
+    }
+}
+
+@Preview
+@Composable
+fun ThirdScreenPreview() {
+    BackstackProvider(backstack = Backstack()) {
+        ThirdScreen()
     }
 }

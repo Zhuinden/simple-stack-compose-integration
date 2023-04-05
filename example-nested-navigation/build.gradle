@@ -6,7 +6,7 @@ android {
     compileSdkVersion 33
 
     defaultConfig {
-        applicationId "com.zhuinden.simplestackcomposesimpleexample"
+        applicationId "com.zhuinden.simplestackcomposenestedexample"
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 1
@@ -59,15 +59,16 @@ dependencies {
 
     implementation 'androidx.activity:activity-compose:1.6.1'
 
-    implementation('com.github.Zhuinden:simple-stack:2.6.5') {
+    implementation('com.github.Zhuinden:simple-stack:2.7.0') {
         transitive = true
     }
-    implementation 'com.github.Zhuinden.simple-stack-extensions:core-ktx:2.2.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments:2.2.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments-ktx:2.2.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:navigator-ktx:2.2.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:services:2.2.5'
-    implementation 'com.github.Zhuinden.simple-stack-extensions:services-ktx:2.2.5'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:core-ktx:2.3.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments:2.3.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:fragments-ktx:2.3.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:lifecycle-ktx:2.3.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:navigator-ktx:2.3.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:services:2.3.0'
+    implementation 'com.github.Zhuinden.simple-stack-extensions:services-ktx:2.3.0'
     implementation 'com.google.code.gson:gson:2.9.1'
 
     testImplementation 'junit:junit:4.13.2'
