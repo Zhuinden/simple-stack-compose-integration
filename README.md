@@ -63,18 +63,25 @@ implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.11.0'
 As Compose requires Java-8 bytecode, you need to also add this:
 
 ``` groovy
-compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+android {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+        languageVersion = '1.9'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.3'
+    }
 }
-kotlinOptions {
-    jvmTarget = '1.8'
-}
-buildFeatures {
-    compose true
-}
-composeOptions {
-    kotlinCompilerExtensionVersion '1.4.3'
+
+kotlin.sourceSets.all {
+    languageSettings.enableLanguageFeature("DataObjects")
 }
 ```
 
@@ -84,41 +91,43 @@ Provides defaults for Composable-driven navigation and animation support.
 
 ``` kotlin
 class MainActivity : AppCompatActivity() {
-    private val composeStateChanger = ComposeStateChanger() // <--
+    private val composeStateChanger = ComposeStateChanger()
 
-    private val backPressedCallback = object: OnBackPressedCallback(true) { // this is the only way to make Compose BackHandler work reliably for now
+    private lateinit var backstack: Backstack
+
+    private val backPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            if (!Navigator.onBackPressed(this@MainActivity)) {
-                this.remove()
-                onBackPressed()
-                this@MainActivity.onBackPressedDispatcher.addCallback(this)
-            }
+            backstack.goBack()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        onBackPressedDispatcher.addCallback(backPressedCallback) // this is the only way to make Compose BackHandler work reliably for now
+        onBackPressedDispatcher.addCallback(backPressedCallback)
 
-        val backstack = Navigator.configure()
-            .setStateChanger(AsyncStateChanger(composeStateChanger))  // <--
-            .install(this, androidContentFrame, History.of(FirstKey()))
+        val app = application as CustomApplication
+
+        backstack = Navigator.configure()
+            .setBackHandlingModel(BackHandlingModel.AHEAD_OF_TIME)
+            .setGlobalServices(app.globalServices)
+            .setScopedServices(DefaultServiceProvider())
+            .setStateChanger(AsyncStateChanger(composeStateChanger))
+            .install(this, androidContentFrame, History.of(DogListKey()))
 
         setContent {
-            BackstackProvider(backstack) {  // <--
-                MaterialTheme {
-                    Box(Modifier.fillMaxSize()) {
-                        composeStateChanger.RenderScreen()  // <--
-                    }
+            BackstackProvider(backstack) {   
+                Box(Modifier.fillMaxSize()) {
+                    composeStateChanger.RenderScreen()
                 }
             }
         }
-    }
 
-    @Suppress("RedundantModalityModifier")
-    override final fun onBackPressed() { // you cannot use `onBackPressed()` if you use `OnBackPressedDispatcher`
-        super.onBackPressed() // therefore this is needed to use Compose's BackHandler
+        backPressedCallback.isEnabled = backstack.willHandleAheadOfTimeBack()
+
+        backstack.observeAheadOfTimeWillHandleBackChanged(this) {
+            backPressedCallback.isEnabled = it
+        }
     }
 }
 ```
@@ -136,7 +145,9 @@ and
 ``` kotlin
 @Immutable
 @Parcelize
-data class SecondKey(private val noArgsPlaceholder: String = ""): ComposeKey() {
+data object SecondKey: ComposeKey() {
+    operator fun invoke() = this
+    
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
         SecondScreen(modifier)
@@ -172,7 +183,9 @@ and
 ``` kotlin
 @Immutable
 @Parcelize
-data class DogListKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
+data object DogListKey: ComposeKey() {
+    operator fun invoke() = this
+    
     override fun bindServices(serviceBinder: ServiceBinder) {
         with(serviceBinder) {
             add(DogListViewModel(lookup<DogDataSource>(), backstack)) // <--

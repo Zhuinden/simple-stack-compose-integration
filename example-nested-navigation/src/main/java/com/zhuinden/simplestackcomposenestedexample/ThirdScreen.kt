@@ -20,7 +20,9 @@ import kotlinx.parcelize.Parcelize
 
 @Immutable
 @Parcelize
-data class ThirdKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
+data object ThirdKey: ComposeKey() {
+    operator fun invoke() = this
+
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
         ThirdScreen()

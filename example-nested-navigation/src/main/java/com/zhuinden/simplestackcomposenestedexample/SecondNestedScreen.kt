@@ -21,7 +21,9 @@ import kotlinx.parcelize.Parcelize
 
 @Immutable
 @Parcelize
-data class SecondNestedKey(private val noArgsPlaceholder: String = "") : ComposeKey() {
+data object SecondNestedKey: ComposeKey() {
+    operator fun invoke() = this
+
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
         SecondNestedScreen(modifier)

@@ -26,7 +26,8 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "1.8"
+        languageVersion = "1.9" // data objects
     }
     buildFeatures {
         compose true
@@ -34,6 +35,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.3'
     }
+}
+
+kotlin.sourceSets.all {
+    languageSettings.enableLanguageFeature("DataObjects")
 }
 
 dependencies {
