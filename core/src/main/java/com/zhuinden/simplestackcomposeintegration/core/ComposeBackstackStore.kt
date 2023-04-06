@@ -62,7 +62,7 @@ fun rememberBackstack(
 
 @Composable
 private fun BackHandler(backstack: Backstack) {
-    var backButtonEnabled by remember { mutableStateOf(false) }
+    var backButtonEnabled by remember { mutableStateOf(backstack.willHandleAheadOfTimeBack()) }
 
     DisposableEffect(backstack) {
         val listener = AheadOfTimeWillHandleBackChangedListener {
