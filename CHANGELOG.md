@@ -1,5 +1,68 @@
 # Change log
 
+-Simple Stack Compose Integration X.XX.X (XXXX-XX-XX)
+--------------------------------
+
+- ADDED NEW MAJOR FEATURE (added by @matejdro): Support for `Backstack` managed by Compose.
+
+This allows `Backstack` to be created at any arbitrary nesting level within composables, including nested stacks.
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            ComposeNavigator {
+                createBackstack(
+                    History.of(InitialKey()),
+                    scopedServices = DefaultServiceProvider()
+                )
+            }
+        }
+    }
+}
+```
+
+Nesting it like so
+
+```kotlin
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            propagateMinConstraints = true
+        ) {
+            ComposeNavigator(id = "TOP", interceptBackButton = false) {
+                createBackstack(
+                    History.of(FirstNestedKey()),
+                    scopedServices = DefaultServiceProvider()
+                )
+            }
+        }
+```
+
+and
+
+```kotlin
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            propagateMinConstraints = true
+        ) {
+            ComposeNavigator(id = "BOTTOM", interceptBackButton = false) {
+                createBackstack(
+                    History.of(FirstNestedKey()),
+                    scopedServices = DefaultServiceProvider()
+                )
+            }
+        }
+```
+
 -Simple Stack Compose Integration 0.11.0 (2023-03-31)
 --------------------------------
 
