@@ -1,6 +1,6 @@
 # Change log
 
--Simple Stack Compose Integration X.XX.X (XXXX-XX-XX)
+-Simple Stack Compose Integration 0.12.0 (2023-04-08)
 --------------------------------
 
 - ADDED NEW MAJOR FEATURE (added by @matejdro): Support for `Backstack` managed by Compose.

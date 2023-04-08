@@ -50,14 +50,14 @@ and then, add the dependency to your module's `build.gradle.kts` (or `build.grad
 
 ``` kotlin
 // build.gradle.kts
-implementation("com.github.Zhuinden:simple-stack-compose-integration:0.11.0")
+implementation("com.github.Zhuinden:simple-stack-compose-integration:0.12.0")
 ```
 
 or
 
 ``` groovy
 // build.gradle
-implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.11.0'
+implementation 'com.github.Zhuinden:simple-stack-compose-integration:0.12.0'
 ```
 
 As Compose requires Java-8 bytecode, you need to also add this:
@@ -91,42 +91,16 @@ Provides defaults for Composable-driven navigation and animation support.
 
 ``` kotlin
 class MainActivity : AppCompatActivity() {
-    private val composeStateChanger = ComposeStateChanger()
-
-    private lateinit var backstack: Backstack
-
-    private val backPressedCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            backstack.goBack()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        onBackPressedDispatcher.addCallback(backPressedCallback)
-
-        val app = application as CustomApplication
-
-        backstack = Navigator.configure()
-            .setBackHandlingModel(BackHandlingModel.AHEAD_OF_TIME)
-            .setGlobalServices(app.globalServices)
-            .setScopedServices(DefaultServiceProvider())
-            .setStateChanger(AsyncStateChanger(composeStateChanger))
-            .install(this, androidContentFrame, History.of(DogListKey()))
-
         setContent {
-            BackstackProvider(backstack) {   
-                Box(Modifier.fillMaxSize()) {
-                    composeStateChanger.RenderScreen()
-                }
+            ComposeNavigator {
+                createBackstack(
+                    History.of(InitialKey()),
+                    scopedServices = DefaultServiceProvider()
+                )
             }
-        }
-
-        backPressedCallback.isEnabled = backstack.willHandleAheadOfTimeBack()
-
-        backstack.observeAheadOfTimeWillHandleBackChanged(this) {
-            backPressedCallback.isEnabled = it
         }
     }
 }
@@ -157,7 +131,7 @@ data object SecondKey: ComposeKey() {
 
 ## What about ViewModels?
 
-You can use `ScopedServices` for that.
+While Jetpack ViewModels are also supported, but it is recommended to use `ScopedServices` as provided by **Simple-Stack**, because `ScopedServices` have more powerful feature set than `ViewModel`.
 
 ``` kotlin
 abstract class ComposeKey : DefaultComposeKey(), Parcelable, DefaultServiceProvider.HasServices {
@@ -194,11 +168,11 @@ data object DogListKey: ComposeKey() {
 
     @Composable
     override fun ScreenComposable(modifier: Modifier) {
-        val viewModel = rememberService<DogListViewModel>() // <--
+        val viewModel = remember { backstack.lookup<DogListViewModel>() } // <--
 
         val dogs by viewModel.dogList.observeAsState()
 
-        DogListScreen(dogs.value)
+        DogListScreen(dogs)
     }
 }
 ```
