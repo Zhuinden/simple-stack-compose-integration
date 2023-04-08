@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 
 group = "com.github.Zhuinden.simple-stack-compose-integration"
-version = "0.11.0"
+version = "0.12.0"
 
 android {
     compileSdkVersion 33
@@ -112,7 +112,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.Zhuinden.simple-stack-compose-integration'
                 artifactId = 'core'
-                version = '0.11.0'
+                version = '0.12.0'
 
                 pom.withXml {
                     def dependenciesNode = (asNode().get("dependencies") as groovy.util.NodeList).get(0) as groovy.util.Node
