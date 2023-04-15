@@ -1,5 +1,12 @@
 # Change log
 
+-Simple Stack Compose Integration 0.12.1 (2023-04-15)
+--------------------------------
+
+- Use `simple-stack-extensions 2.3.2`.
+
+- ADD: `rememberServiceFrom(scopeTag, ...)` and `rememberServiceFrom(scopeKey, ...)`.
+
 -Simple Stack Compose Integration 0.12.0 (2023-04-08)
 --------------------------------
 
