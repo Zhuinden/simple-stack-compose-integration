@@ -354,14 +354,14 @@ class ComposeStateChanger(
     private fun LocalDestroyedLifecycle(child: @Composable () -> Unit) {
         val childLifecycleOwner = remember {
             object : LifecycleOwner {
-                val lifecycle = LifecycleRegistry(this)
-                override fun getLifecycle(): Lifecycle {
-                    return lifecycle
-                }
+                val localLifecycle = LifecycleRegistry(this)
+
+                override val lifecycle: Lifecycle
+                    get() = localLifecycle
             }
         }
 
-        val childLifecycle = childLifecycleOwner.lifecycle
+        val childLifecycle = childLifecycleOwner.localLifecycle
         val parentLifecycle = LocalLifecycleOwner.current.lifecycle
 
         DisposableEffect(parentLifecycle) {

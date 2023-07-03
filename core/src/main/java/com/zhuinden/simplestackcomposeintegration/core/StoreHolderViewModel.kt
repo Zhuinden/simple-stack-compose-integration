@@ -18,7 +18,12 @@ internal class StoreHolderViewModel : ViewModel() {
    fun WithLocalViewModelStore(key: Any, block: @Composable () -> Unit) {
       val storeOwner = viewModelStores.getOrPut(key) {
          val store = ViewModelStore()
-         ViewModelStoreOwner { store }
+
+         object: ViewModelStoreOwner {
+            override val viewModelStore: ViewModelStore
+               get() = store
+
+         }
       }
 
       CompositionLocalProvider(LocalViewModelStoreOwner provides storeOwner) {

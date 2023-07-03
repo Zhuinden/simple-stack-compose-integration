@@ -1,5 +1,14 @@
 # Change log
 
+-Simple Stack Compose Integration 0.12.2 (2023-07-03)
+--------------------------------
+
+- Use `simple-stack 2.8.0` and `simple-stack-extensions 2.3.3`.
+
+- Update Compose to 1.4.3 and Kotlin to 1.8.22.
+
+- Update underlying AndroidX dependencies.
+
 -Simple Stack Compose Integration 0.12.1 (2023-04-15)
 --------------------------------
 
