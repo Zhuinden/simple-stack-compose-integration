@@ -52,6 +52,14 @@ val LocalComposeKey =
  * A key that receives a modifier and provides for the compose key composition local.
  *
  * Please note that it is not Parcelable by default.
+ *
+ * Also note that `hashCode()` is not stable for `enum class`/`enum`, so enums should be kept as a String instead.
+ *
+ * data class DemoKey(private val enumName: String): DefaultComposeKey {
+ *     constructor(enum: DemoEnum): this(enum.name)
+ *
+ *     val enum: DemoEnum get() = DemoEnum.valueOf(enumName)
+ * }
  */
 abstract class DefaultComposeKey {
     /**
