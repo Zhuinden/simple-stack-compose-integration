@@ -177,6 +177,26 @@ data object DogListKey: ComposeKey() {
 }
 ```
 
+## Note about using Enum parameters in keys
+
+Unfortunately, `enum.hashCode()` is not stable across process death. so Enum classes shouldn't be passed directly to keys as arguments.
+
+It is preferable to preserve them as a private String, and expose the value as an enum vie a custom getter.
+
+```kotlin
+// THIS BREAKS!
+data class DemoKey(val enum: DemoEnum): DefaultComposeKey
+
+// DO THIS INSTEAD
+data class DemoKey(private val enumName: String): DefaultComposeKey {
+    constructor(enum: DemoEnum): this(enum.name)
+    
+    val enum: DemoEnum get() = DemoEnum.valueOf(enumName)
+}
+```
+
+Unfortunately, this is a limitation of the JVM, and not of Simple-Stack, meaning it's something we need to remember to do.
+
 ## License
 
     Copyright 2021-2023 Gabor Varadi
