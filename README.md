@@ -185,7 +185,7 @@ It is preferable to preserve them as a private String, and expose the value as a
 
 ```kotlin
 // THIS BREAKS!
-data class DemoKey(val enum: DemoEnum): DefaultComposeKey // <-- breaks!
+// data class DemoKey(val enum: DemoEnum): DefaultComposeKey // <-- breaks!
 
 // DO THIS INSTEAD
 data class DemoKey(private val enumName: String): DefaultComposeKey {
