@@ -1,5 +1,10 @@
 # Change log
 
+-Simple Stack Compose Integration 0.12.3 (2024-05-06)
+--------------------------------
+
+- Use `simple-stack 2.9.0` and `simple-stack-extensions 2.3.4`.
+
 -Simple Stack Compose Integration 0.12.2 (2023-07-03)
 --------------------------------
 

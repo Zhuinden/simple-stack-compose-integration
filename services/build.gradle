@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 
 group = "com.github.Zhuinden.simple-stack-compose-integration"
-version = "0.12.2"
+version = "0.12.3"
 
 android {
     compileSdkVersion 33
@@ -42,10 +42,10 @@ dependencies {
     implementation(project(":core"))
 
     api "com.google.code.findbugs:jsr305:3.0.2"
-    api("com.github.Zhuinden:simple-stack:2.8.0") {
+    api("com.github.Zhuinden:simple-stack:2.9.0") {
         transitive = true
     }
-    api('com.github.Zhuinden.simple-stack-extensions:services-ktx:2.3.3') {
+    api('com.github.Zhuinden.simple-stack-extensions:services-ktx:2.3.4') {
         transitive = true
     }
 
@@ -104,7 +104,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.github.Zhuinden.simple-stack-compose-integration'
                 artifactId = 'services'
-                version = '0.12.2'
+                version = '0.12.3'
 
                 pom.withXml {
                     def dependenciesNode = (asNode().get("dependencies") as groovy.util.NodeList).get(0) as groovy.util.Node
