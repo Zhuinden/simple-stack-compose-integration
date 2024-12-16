@@ -1,5 +1,12 @@
 # Change log
 
+-Simple Stack Compose Integration 0.13.0 (2024-12-16)
+--------------------------------
+
+- Add `parentServices: Backstack?` and `parentScopeTag: String?` parameters to `ComposeNavigatorInitializer`. This should allow nested hierarchical service lookups.
+
+This is available through both `rememberBackstack` and `ComposeNavigator`.
+
 -Simple Stack Compose Integration 0.12.3 (2024-05-06)
 --------------------------------
 
