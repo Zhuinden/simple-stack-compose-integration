@@ -57,14 +57,14 @@ fun rememberBackstack(
     val viewModel = viewModel<BackstackHolderViewModel>()
     val backstack = viewModel.getBackstack(id) ?: init(viewModel.createInitializer(id))
 
-    SaveBackstackState(backstack)
+    SaveBackstackState(backstack, id)
     ListenToLifecycleEvents(backstack)
 
     if (interceptBackButton) {
         BackHandler(backstack)
     }
 
-    remember(stateChanger) {
+    remember(backstack, stateChanger, id) {
         // Attach state changer after init call to defer first navigation. That way,
         // caller can use backstack to init their own things with Backstack instance
         // before navigation is performed.
@@ -99,20 +99,21 @@ private fun BackHandler(backstack: Backstack) {
 }
 
 @Composable
-private fun SaveBackstackState(backstack: Backstack) {
+private fun SaveBackstackState(backstack: Backstack, id: String) {
     val stateSavingRegistry = LocalSaveableStateRegistry.current
 
-    remember(backstack) {
+    remember(backstack, id, stateSavingRegistry) {
         if (stateSavingRegistry == null) {
             return@remember true
         }
 
-        val oldState = stateSavingRegistry.consumeRestored(STATE_SAVING_KEY) as StateBundle?
+        val stateId = "$STATE_SAVING_KEY[$id]"
+        val oldState = stateSavingRegistry.consumeRestored(stateId) as StateBundle?
         oldState?.let {
             backstack.fromBundle(it)
         }
 
-        stateSavingRegistry.registerProvider(STATE_SAVING_KEY) {
+        stateSavingRegistry.registerProvider(stateId) {
             backstack.toBundle()
         }
     }

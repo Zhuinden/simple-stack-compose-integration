@@ -1,5 +1,12 @@
 # Change log
 
+-Simple Stack Compose Integration 0.13.1 (2025-01-06)
+--------------------------------
+
+- Fix that `rememberBackstack()` keys did not fully consider `id` as a change. (fixes #33)
+- 
+- Fix that `SaveBackstackState` function was not prepared for multiple `id` parameters, as despite there being a ViewModelStore for each Backstack, there's no separate SaveableStateRegistry (possibly related to #23, which was never implemented).
+
 -Simple Stack Compose Integration 0.13.0 (2024-12-16)
 --------------------------------
 

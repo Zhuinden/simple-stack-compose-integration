@@ -21,8 +21,8 @@ fun ComposeNavigator(
     interceptBackButton: Boolean = true,
     init: ComposeNavigatorInitializer.() -> Backstack,
 ) {
-    val composeStateChanger = remember { ComposeStateChanger(animationConfiguration) }
-    val asyncStateChanger = remember(composeStateChanger) { AsyncStateChanger(composeStateChanger) }
+    val composeStateChanger = remember(id, animationConfiguration) { ComposeStateChanger(animationConfiguration) }
+    val asyncStateChanger = remember(id, composeStateChanger) { AsyncStateChanger(composeStateChanger) }
 
     val backstack = rememberBackstack(asyncStateChanger, id, interceptBackButton, init)
 
