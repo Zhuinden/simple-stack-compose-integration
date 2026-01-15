@@ -1,3 +1,11 @@
+# DEPRECATION NOTICE
+
+While there is nothing conceptually wrong with this repository, what it does should be managed with a Navigation3's `NavDisplay`.
+
+Everything inside the `core` and specifically by `ComposeStateChanger` is done by `NavDisplay` and it is done better with less trickery in regards to setting up `ViewModelStore`s and whatnot per each screen.
+
+So there was an open question, https://github.com/Zhuinden/simple-stack-compose-integration/issues/23 , which just doesn't need to be done if you do `NavDisplay`. You'd just use the ViewModelStoreDecorator. And you'd manage the state of the navigation via a `Backstack` but not with this module, you can literally just set the current list of keys to the NavDisplay and it'd just work.
+
 # Simple Stack Compose Integration
 
 Default behavior for Jetpack Compose using Simple-Stack.
